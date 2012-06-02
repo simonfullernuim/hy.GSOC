@@ -9,7 +9,6 @@
 
 //#ifdef INSIDE
 
-#define BUFFER 1024
 
 /*
  * 	Inheritance: Super_Class --> Basic_parser --> TMULTI_parser
@@ -34,6 +33,7 @@ those two are the keys to it
 #include <vector>
 #include <map>
 #include <utility>
+#include <sstream>
 
 #include "WTypes.h"
 #include "SPC.h"
@@ -50,29 +50,8 @@ those two are the keys to it
 #include <R.h>
 using namespace std;
 
-/*
- *  ALT-SHIFT-W for Project Explorer
- */
-/*
- *
- * setClass("example",
-    representation  (
-           size = "numeric",
-           id    = "character"
-    )
-)
 
-fx <- cxxfunction( signature(x = "example"),
-'
-     S4 obj(x) ;
-     obj.slot( "size" ) = 10 ;
-     obj.slot( "id"   ) = "foo" ;
-     return obj ;
-', plugin = "Rcpp" )
 
-str( fx( new("example", size=4, id="id_value") ) )
- *
- */
 
 /*
  * RcppExport SEXP rcpp_read_spc( string _file, vector<string> _hdr2data, vector<string> _log2data,
@@ -152,7 +131,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			//Rcpp::Language hyObj_call("new", "hyperSpec");
 			//Rcpp::S4 hyObj( hyObj_call.eval() );
 
-			spcrdr->parser = new Basic_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new Basic_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 
 			//Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named("spc") = Rcpp::NumericVector(1) );
 
@@ -160,9 +139,11 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			spcrdr->print_SPCHDR();
 			//spcrdr->parser->log_labeltovalue.size()
 			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size()+2);//include hdr values here also!!!
-
-			Rprintf("extralist made\n");
 			Rcpp::CharacterVector extranames(spcrdr->parser->log_labeltovalue.size()+2);	//include hdr values here also!!!
+			Rprintf("extralist made\n");
+
+
+
 //			Rcpp::CharacterVector datanames(spcrdr->parser->log_labeltovalue.size());
 
 			if(spcrdr->parser->want_log_but_no_log == 1){
@@ -226,7 +207,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 		case TMULTI :{
 			cout << "Case: " << spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			cout << endl;
@@ -252,7 +233,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 		case TXVALS :{
 			cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(1, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			cout << endl;
@@ -275,7 +256,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 				break;
 			}
 			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TMULTI_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TMULTI_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			for( unsigned int i = 0; i < spcrdr->hdr.fnsub; ++i ){
@@ -299,7 +280,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			spcrdr->ifstr.read( (char*) &subhdr, SUBHSZ );
 			Rcpp::NumericVector X( subhdr.subnpts );
 			Rcpp::NumericMatrix Y(1, subhdr.subnpts );
-			spcrdr->parser = new TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, subhdr );
+			spcrdr->parser = new TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data, subhdr );
 
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
@@ -318,7 +299,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			//PLAN: if we use DIRECTORY - fetch linearly, but store in linked list according to directory structure
 
 
-			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data );
+			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data, &hdr2data );
 			//by default list is ordered
 			Rcpp::List hyperSpecList( spcrdr->hdr.fnsub + 1 );	//extra slot for directory
 			Rcpp::NumericVector directory( spcrdr->hdr.fnsub );
@@ -435,6 +416,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 	END_RCPP
 }
+
 
 
 //#endif

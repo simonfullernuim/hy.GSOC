@@ -49,21 +49,27 @@ public:
 	bool want_log_but_no_log;
 	short logs_to_collect;
 	short uncollected;
-	std::map< std::string, std::string > log_labeltovalue;
+	std::map< std::string, std::string > log_labeltovalue;	//these involve a slight overhead in copying the hdr strings, but it is minor since amount is small
+	std::map< std::string, std::string > hdr_labeltovalues;
+	std::map<std::string, std::string >hdr_map;
 
 	bool hasDirectory;
 
 	Super_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval,
-		Rcpp::NumericVector::iterator ipt_X_ptr, Rcpp::NumericMatrix::iterator ipt_Y_ptr, std::vector< std::string >* ipt_log2data )
+		Rcpp::NumericVector::iterator ipt_X_ptr, Rcpp::NumericMatrix::iterator ipt_Y_ptr, std::vector< std::string >* ipt_log2data, std::vector< std::string >* ipt_hdr2data )
 			:  ifstr( ipt_ifstr ), reader_hdr( ipt_reader_hdr ),tsprec_subval( ipt_tsprec_subval ),
 			   X_ptr(ipt_X_ptr), Y_ptr(ipt_Y_ptr) {
 		prec_shifts = tsprec_subval == 32 ? 5 : 4;
+		get_hdr_data(ipt_hdr2data);
 		check_log(ipt_log2data);
+
+
 	}//rotcurtsnoc
 	//2nd ctr - used for TXYXYS..
-	Super_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data )
+	Super_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data, std::vector< std::string >* ipt_hdr2data )
 		:  ifstr( ipt_ifstr ), reader_hdr( ipt_reader_hdr ),tsprec_subval( ipt_tsprec_subval ){
 		prec_shifts = tsprec_subval == 32 ? 5 : 4;
+		get_hdr_data(ipt_hdr2data);
 		check_log(ipt_log2data);
 
 	}
@@ -86,9 +92,6 @@ public:
 	/*
 	 * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
 	 */
-	/*
-	 * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
-	 */
 	void readY(short row, int amt, char fexp, unsigned int _offset = 0);
 
 
@@ -99,13 +102,24 @@ public:
 		ifstr->read( (char*) &logstc, LOGSTCSZ );
 	}
 	*/
+
 	short read_log();//DO
 	void print_stored_log();
 	void read_process_subhdr();
+	void set_hdr_map();
+	void get_hdr_data(std::vector< std::string>* ipt_hdr2data);
+	void arrange_data();
+
 	//virtual Rcpp::NumericMatrix* getX() = 0;
 	//virtual Rcpp::NumericMatrix* getY() = 0;
 
 	//virtual void print_Y() = 0;
+
+	std::string convert_to_str(int n);
+	std::string convert_to_str(double n);
+	std::string convert_to_str(std::string str){ return str; }
+
+
 };
 
 #endif

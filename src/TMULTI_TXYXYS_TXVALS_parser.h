@@ -16,8 +16,8 @@ protected:
 public:
 
 
-	TMULTI_TXYXYS_TXVALS_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data )
-		: Super_parser ( ipt_ifstr, ipt_reader_hdr, ipt_tsprec_subval, ipt_log2data ){
+	TMULTI_TXYXYS_TXVALS_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data, std::vector< std::string >* ipt_hdr2data )
+		: Super_parser ( ipt_ifstr, ipt_reader_hdr, ipt_tsprec_subval, ipt_log2data, ipt_hdr2data ){
 		hasDirectory = (reader_hdr->fnpts == 0 ) ? false : true;
 	}
 	virtual ~TMULTI_TXYXYS_TXVALS_parser(){}

@@ -186,22 +186,40 @@ short Super_parser::read_log(){
 	return (logs_to_collect - logs_collected);	//return the numer of log values not collected
 }
 
+//test function - remove
 void Super_parser::print_stored_log(){
 	for( std::map< std::string, std::string >::const_iterator it = log_labeltovalue.begin(); it != log_labeltovalue.end(); ++it  ){
 		std::cout << it->first << ":\t" << it->second << std::endl;
 	}
 }
 
+
+
+void Super_parser::get_hdr_data(std::vector< std::string >* hdr2data){
+	set_hdr_map();
+	map<string, string >::const_iterator map_it;
+	for( std::vector< std::string >::const_iterator it = hdr2data->begin(); it != hdr2data->end(); ++it ){
+		map_it = hdr_map.find( *it );
+		if( map_it != hdr_map.end() ){
+			hdr_labeltovalues.insert( make_pair( map_it->first, map_it->second ));
+		}//fi
+	}//rof
+}//cnuf
+
+void Super_parser::arrange_data(){
+
+}
+
 void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_vector_it ){
-		if(!hasDirectory) return;
-		unsigned int nsub = reader_hdr->fnsub;
-		int * offsets = new int[nsub];
-		int * offset_indices = new int[nsub];
-		for( unsigned int i = 0; i < nsub; ++i ){	//
-			ifstr->read( (char*) &current_ssftc, SSFTCSZ );
-			offsets[i] = current_ssftc.ssfposn;
-			offset_indices[i] = i + 1;
-		}
+	if(!hasDirectory) return;
+	unsigned int nsub = reader_hdr->fnsub;
+	int * offsets = new int[nsub];
+	int * offset_indices = new int[nsub];
+	for( unsigned int i = 0; i < nsub; ++i ){	//
+		ifstr->read( (char*) &current_ssftc, SSFTCSZ );
+		offsets[i] = current_ssftc.ssfposn;
+		offset_indices[i] = i + 1;
+	}
 		/*
 		 use a simple insertion sort to sort the offsets and stores the index positions
 		  - a quicksort is not much use with small sizes and insertion sort acts well with presorted / partially sorted data
@@ -228,3 +246,66 @@ void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_ve
 		delete [] offsets;
 		delete [] offset_indices;
 	}//cnuf
+//make the whole map a string map;
+//this is a little more time consuming than we want but:
+//a) it avoids a lot of trouble trying to handle the struct types..
+//b) it is a constant independent of the size of the data
+//c) it is quite small
+void Super_parser::set_hdr_map(){//nb check char versions..
+	   hdr_map.insert(std::make_pair("ftflgs", convert_to_str(reader_hdr->ftflgs)));
+	   hdr_map.insert(std::make_pair("fversn", convert_to_str(reader_hdr->fversn)));
+	   hdr_map.insert(std::make_pair("fexper", convert_to_str(reader_hdr->fexper)));
+	   hdr_map.insert(std::make_pair("fexp", convert_to_str(reader_hdr->fexp)));
+	   hdr_map.insert(std::make_pair("fnpts", convert_to_str((int)reader_hdr->fnpts)));
+	   hdr_map.insert(std::make_pair("ffirst", convert_to_str(reader_hdr->ffirst)));
+	   hdr_map.insert(std::make_pair("flast", convert_to_str(reader_hdr->flast)));
+	   hdr_map.insert(std::make_pair("fnsub", convert_to_str((int)reader_hdr->fnsub)));
+	   hdr_map.insert(std::make_pair("fxtype", convert_to_str(reader_hdr->fxtype)));
+	   hdr_map.insert(std::make_pair("fytype", convert_to_str(reader_hdr->fytype)));
+	   hdr_map.insert(std::make_pair("fztype", convert_to_str(reader_hdr->fztype)));
+	   hdr_map.insert(std::make_pair("fpost", convert_to_str(reader_hdr->fpost)));
+	   hdr_map.insert(std::make_pair("fdate", convert_to_str((int)reader_hdr->fdate)));
+	   string tmp_str(reader_hdr->fres, 8);
+	   hdr_map.insert(std::make_pair("fres",  tmp_str ));//     null terminated[]?but is it?
+	   tmp_str(reader_hdr->fsource, 8);
+	   hdr_map.insert(std::make_pair("fsource", tmp_str));// 	null terminated[]?but is it?
+	   hdr_map.insert(std::make_pair("fpeakpt", convert_to_str(reader_hdr->fpeakpt)));
+	   string fsp_str = "";
+	   for(int i = 0; i < 8; ++i){
+		   fsp_str = fsp_str + reader_hdr->fspare[i] + "" + ',';
+	   }
+	   hdr_map.insert(std::make_pair("fspare", fsp_str));//float[8]
+	   tmp_str(reader_hdr->fcmnt,129);
+	   hdr_map.insert(std::make_pair("fcmnt", reader_hdr->fcmnt));//	null terminated[]
+	   tmp_str = "";
+	   for(int i = 0; i < 30; ++i){
+		   tmp_str = tmp_str + "" + ( reader_hdr->fcatxt[i] == '\0' ) ? ", " : reader_hdr->fcatxt[i];
+	   }
+	   hdr_map.insert(std::make_pair("fcatxt", tmp_str));//[] fcatxt has 3 values separated by nulls
+	   hdr_map.insert(std::make_pair("flogoff", convert_to_str((int)reader_hdr->flogoff)));
+	   hdr_map.insert(std::make_pair("fmods", convert_to_str((int)reader_hdr->fmods)));
+	   hdr_map.insert(std::make_pair("fprocs", convert_to_str(reader_hdr->fprocs)));
+	   hdr_map.insert(std::make_pair("flevel", convert_to_str(reader_hdr->flevel)));
+	   hdr_map.insert(std::make_pair("fsampin", convert_to_str(reader_hdr->fsampin)));
+	   hdr_map.insert(std::make_pair("ffactor", convert_to_str(reader_hdr->ffactor)));
+	   tmp_str(reader_hdr->fmethod, 48);
+	   hdr_map.insert(std::make_pair("fmethod", tmp_str));//[]
+	   hdr_map.insert(std::make_pair("fzinc", convert_to_str(reader_hdr->fzinc)));
+	   hdr_map.insert(std::make_pair("fwplanes", convert_to_str((int)reader_hdr->fwplanes)));
+	   hdr_map.insert(std::make_pair("fwinc", convert_to_str(reader_hdr->fwinc)));
+	   hdr_map.insert(std::make_pair("fwtype", convert_to_str(reader_hdr->fwtype)));
+	  // hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));
+}
+
+string convert_to_str(int number)
+{
+   stringstream ss;//create a stringstream
+   ss << number;//add number to the stream
+   return ss.str();//return a string with the contents of the stream
+}
+string convert_to_str(double number)
+{
+   stringstream ss;//create a stringstream
+   ss << number;//add number to the stream
+   return ss.str();//return a string with the contents of the stream
+}
