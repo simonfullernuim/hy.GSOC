@@ -161,7 +161,7 @@ thoughton.
 			//Rcpp::Language hyObj_call("new", "hyperSpec");
 			//Rcpp::S4 hyObj( hyObj_call.eval() );
 
-			spcrdr->parser = new Basic_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new Basic_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 
 			//Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named("spc") = Rcpp::NumericVector(1) );
 
@@ -182,11 +182,11 @@ thoughton.
 			}//rof
 			cout << endl;
 			//spcrdr->parser->log_labeltovalue.size()
-			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size());
+			Rcpp::List extralist(spcrdr->parser->labeltovalue.size());
 			Rcpp::DataFrame data = Rcpp::DataFrame::create();
 
-			Rcpp::CharacterVector extranames(spcrdr->parser->log_labeltovalue.size());
-			Rcpp::CharacterVector datanames(spcrdr->parser->log_labeltovalue.size());
+			Rcpp::CharacterVector extranames(spcrdr->parser->labeltovalue.size());
+			Rcpp::CharacterVector datanames(spcrdr->parser->labeltovalue.size());
 
 			if(spcrdr->parser->want_log_but_no_log == 1){
 				cout << "WARNING: want log but no log" << endl;
@@ -194,14 +194,14 @@ thoughton.
 
 			else{
 				int c =  0;
-				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
+				for( map<string, string>::const_iterator it = spcrdr->parser->labeltovalue.begin(); it != spcrdr->parser->labeltovalue.end(); ++it ){
 					extranames(c) = it->first;
 					datanames(c) = it->first;
 					++c;
 				}//rof
 				extralist.names() = extranames;
 				datanames.names() = datanames;
-				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
+				for( map<string, string>::const_iterator it = spcrdr->parser->labeltovalue.begin(); it != spcrdr->parser->labeltovalue.end(); ++it ){
 					extralist[it->first] = it->second;
 					data[it->first] = it->second;
 				}//rof
@@ -229,7 +229,7 @@ thoughton.
 		case TMULTI :{
 			cout << "Case: " << spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			cout << endl;
@@ -255,7 +255,7 @@ thoughton.
 		case TXVALS :{
 			cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(1, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			cout << endl;
@@ -278,7 +278,7 @@ thoughton.
 				break;
 			}
 			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TMULTI_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data );
+			spcrdr->parser = new TMULTI_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			for( unsigned int i = 0; i < spcrdr->hdr.fnsub; ++i ){
@@ -302,7 +302,7 @@ thoughton.
 			spcrdr->ifstr.read( (char*) &subhdr, SUBHSZ );
 			Rcpp::NumericVector X( subhdr.subnpts );
 			Rcpp::NumericMatrix Y(1, subhdr.subnpts );
-			spcrdr->parser = new TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, subhdr );
+			spcrdr->parser = new TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data, subhdr );
 
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
@@ -321,7 +321,7 @@ thoughton.
 			//PLAN: if we use DIRECTORY - fetch linearly, but store in linked list according to directory structure
 
 
-			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data );
+			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data, &hdr2data );
 			//by default list is ordered
 			Rcpp::List hyperSpecList( spcrdr->hdr.fnsub + 1 );	//extra slot for directory
 			Rcpp::NumericVector directory( spcrdr->hdr.fnsub );
@@ -432,6 +432,7 @@ thoughton.
 
 	*/
 	cout <<"closing main"<<endl;
+
 	return 1;
 }
 

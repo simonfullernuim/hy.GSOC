@@ -175,10 +175,10 @@ short Super_parser::read_log(){
 		if( log2data.find(label) != log2data.end() ){//if it is in the list..
 			value.assign(it+1, str.end());
 			if( *(value.end()-1) == 0x0D ){	//\r
-				log_labeltovalue.insert( make_pair(label, string(value.begin(), value.end()-1)) );
+				labeltovalue.insert( make_pair(label, string(value.begin(), value.end()-1)) );
 			}
 			else{
-				log_labeltovalue.insert( make_pair(label, value) );
+				labeltovalue.insert( make_pair(label, value) );
 			}
 			++logs_collected;
 		}//fi
@@ -188,7 +188,7 @@ short Super_parser::read_log(){
 
 //test function - remove
 void Super_parser::print_stored_log(){
-	for( std::map< std::string, std::string >::const_iterator it = log_labeltovalue.begin(); it != log_labeltovalue.end(); ++it  ){
+	for( std::map< std::string, std::string >::const_iterator it = labeltovalue.begin(); it != labeltovalue.end(); ++it  ){
 		std::cout << it->first << ":\t" << it->second << std::endl;
 	}
 }
@@ -201,13 +201,26 @@ void Super_parser::get_hdr_data(std::vector< std::string >* hdr2data){
 	for( std::vector< std::string >::const_iterator it = hdr2data->begin(); it != hdr2data->end(); ++it ){
 		map_it = hdr_map.find( *it );
 		if( map_it != hdr_map.end() ){
-			hdr_labeltovalues.insert( make_pair( map_it->first, map_it->second ));
+			labeltovalue.insert( make_pair( map_it->first, map_it->second ));
 		}//fi
 	}//rof
 }//cnuf
 
-void Super_parser::arrange_data(){
+void Super_parser::arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& extralist  ){
+	extranames(0) = "z";
+	extranames(1) = "z.end";
+	int c =  2;
+	for( map<string, string>::const_iterator it = labeltovalue.begin(); it != labeltovalue.end(); ++it ){
+		extranames(c) = it->first;
+		++c;
+	}//rof
+	extralist.names() = extranames;
 
+	extralist["z"] = extralist["z.end"] = reader_hdr->fztype;
+
+	for( map<string, string>::const_iterator it = labeltovalue.begin(); it != labeltovalue.end(); ++it ){
+		extralist[it->first] = it->second;
+	}//rof
 }
 
 void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_vector_it ){
@@ -267,19 +280,19 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	   hdr_map.insert(std::make_pair("fdate", convert_to_str((int)reader_hdr->fdate)));
 	   string tmp_str(reader_hdr->fres, 8);
 	   hdr_map.insert(std::make_pair("fres",  tmp_str ));//     null terminated[]?but is it?
-	   tmp_str(reader_hdr->fsource, 8);
+	   tmp_str.assign(reader_hdr->fsource, 8);
 	   hdr_map.insert(std::make_pair("fsource", tmp_str));// 	null terminated[]?but is it?
 	   hdr_map.insert(std::make_pair("fpeakpt", convert_to_str(reader_hdr->fpeakpt)));
 	   string fsp_str = "";
 	   for(int i = 0; i < 8; ++i){
-		   fsp_str = fsp_str + reader_hdr->fspare[i] + "" + ',';
+		   fsp_str = fsp_str + convert_to_str(reader_hdr->fspare[i]) + ',';
 	   }
 	   hdr_map.insert(std::make_pair("fspare", fsp_str));//float[8]
-	   tmp_str(reader_hdr->fcmnt,129);
+	   tmp_str.assign(reader_hdr->fcmnt,129);
 	   hdr_map.insert(std::make_pair("fcmnt", reader_hdr->fcmnt));//	null terminated[]
 	   tmp_str = "";
 	   for(int i = 0; i < 30; ++i){
-		   tmp_str = tmp_str + "" + ( reader_hdr->fcatxt[i] == '\0' ) ? ", " : reader_hdr->fcatxt[i];
+		   tmp_str = tmp_str + "" + (( reader_hdr->fcatxt[i] == '\0' ) ? ',' : reader_hdr->fcatxt[i]);
 	   }
 	   hdr_map.insert(std::make_pair("fcatxt", tmp_str));//[] fcatxt has 3 values separated by nulls
 	   hdr_map.insert(std::make_pair("flogoff", convert_to_str((int)reader_hdr->flogoff)));
@@ -288,7 +301,7 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	   hdr_map.insert(std::make_pair("flevel", convert_to_str(reader_hdr->flevel)));
 	   hdr_map.insert(std::make_pair("fsampin", convert_to_str(reader_hdr->fsampin)));
 	   hdr_map.insert(std::make_pair("ffactor", convert_to_str(reader_hdr->ffactor)));
-	   tmp_str(reader_hdr->fmethod, 48);
+	   tmp_str.assign(reader_hdr->fmethod, 48);
 	   hdr_map.insert(std::make_pair("fmethod", tmp_str));//[]
 	   hdr_map.insert(std::make_pair("fzinc", convert_to_str(reader_hdr->fzinc)));
 	   hdr_map.insert(std::make_pair("fwplanes", convert_to_str((int)reader_hdr->fwplanes)));
@@ -297,13 +310,13 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	  // hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));
 }
 
-string convert_to_str(int number)
+string Super_parser::convert_to_str(int number)
 {
    stringstream ss;//create a stringstream
    ss << number;//add number to the stream
    return ss.str();//return a string with the contents of the stream
 }
-string convert_to_str(double number)
+string Super_parser::convert_to_str(double number)
 {
    stringstream ss;//create a stringstream
    ss << number;//add number to the stream

@@ -136,10 +136,16 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			//Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named("spc") = Rcpp::NumericVector(1) );
 
 			spcrdr->parser->parse_file();
-			spcrdr->print_SPCHDR();
+			//spcrdr->print_SPCHDR();
+
 			//spcrdr->parser->log_labeltovalue.size()
-			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size()+2);//include hdr values here also!!!
-			Rcpp::CharacterVector extranames(spcrdr->parser->log_labeltovalue.size()+2);	//include hdr values here also!!!
+			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
+			Rcpp::List extralist( list_sz );//include hdr values here also!!!
+			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
+
+			spcrdr->parser->arrange_data(extranames, extralist);
+
+
 			Rprintf("extralist made\n");
 
 
@@ -151,27 +157,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			}//fi
 
 
-				extranames(0) = "z";
-				extranames(1) = "z.end";
 
-				int c =  2;
-				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
-					extranames(c) = it->first;
-	//				datanames(c) = it->first;
-					++c;
-				}//rof
-				Rprintf("extranames made\n");
-				extralist.names() = extranames;
-				//datanames.names() = datanames;
-				Rprintf("extranames applied\n");
-
-				extralist["z"] = extralist["z.end"] = spcrdr->hdr.fztype;
-				Rprintf("zs assigned\n");
-
-				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
-					extralist[it->first] = it->second;
-					//data[it->first] = it->second;
-				}//rof
 
 				/*
 			for(Rcpp::List::iterator lit = extralist.begin(); lit != extralist.end(); ++lit){
@@ -377,38 +363,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 	}
 
 	delete spcrdr;
-	/*
-	char* input, *output;
 
-	FILE* fin, *fout;
-
-	char* buffer;
-	size_t read;
-
-	input = "/home/simon/College/GSOC/spc_sdk/Data/RAMAN.spc";
-	output = "/home/simon/College/GSOC/test.txt";
-
-	fin = fopen( input, "r");
-	if (!fin)
-		return 1;
-	fout = fopen( output, "w");
-	if (!fout)
-		return 1;
-	buffer = new char[BUFFER];
-
-	while (!feof(fin)) {
-		read = fread(buffer, 1, BUFFER, fin);
-	    if (!read)
-	    	break;
-	    for (size_t i = 0; i < read; ++i) {
-	       // buffer[i] = buffer[i];
-	    }
-	    fwrite(buffer, 1, read, fout);
-	    }
-	    fclose(fin);
-	    fclose(fout);
-
-	*/
 	cout <<"closing main"<<endl;
 
 	SEXP blah;

@@ -12,6 +12,7 @@
 #define BUFFER16 1024
 
 #include <fstream>
+#include <sstream>
 #include <cmath>
 #include <map>
 #include <utility>
@@ -49,8 +50,8 @@ public:
 	bool want_log_but_no_log;
 	short logs_to_collect;
 	short uncollected;
-	std::map< std::string, std::string > log_labeltovalue;	//these involve a slight overhead in copying the hdr strings, but it is minor since amount is small
-	std::map< std::string, std::string > hdr_labeltovalues;
+	//std::map< std::string, std::string > log_labeltovalue;	//these involve a slight overhead in copying the hdr strings, but it is minor since amount is small
+	std::map< std::string, std::string > labeltovalue;
 	std::map<std::string, std::string >hdr_map;
 
 	bool hasDirectory;
@@ -108,7 +109,7 @@ public:
 	void read_process_subhdr();
 	void set_hdr_map();
 	void get_hdr_data(std::vector< std::string>* ipt_hdr2data);
-	void arrange_data();
+	void arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& extralist );
 
 	//virtual Rcpp::NumericMatrix* getX() = 0;
 	//virtual Rcpp::NumericMatrix* getY() = 0;
