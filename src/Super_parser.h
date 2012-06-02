@@ -86,7 +86,11 @@ public:
 	/*
 	 * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
 	 */
+	/*
+	 * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
+	 */
 	void readY(short row, int amt, char fexp, unsigned int _offset = 0);
+
 
 	void parse_directory( Rcpp::NumericVector::iterator it );
 	bool has_directory(){return hasDirectory;}

@@ -159,47 +159,59 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
 			//spcrdr->parser->log_labeltovalue.size()
-			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size());
-			Rcpp::DataFrame data = Rcpp::DataFrame::create();
+			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size()+2);//include hdr values here also!!!
 
-			Rcpp::CharacterVector extranames(spcrdr->parser->log_labeltovalue.size());
-			Rcpp::CharacterVector datanames(spcrdr->parser->log_labeltovalue.size());
+			Rprintf("extralist made\n");
+			Rcpp::CharacterVector extranames(spcrdr->parser->log_labeltovalue.size()+2);	//include hdr values here also!!!
+//			Rcpp::CharacterVector datanames(spcrdr->parser->log_labeltovalue.size());
 
 			if(spcrdr->parser->want_log_but_no_log == 1){
 				cout << "WARNING: want log but no log" << endl;
 			}//fi
 
-			else{
-				int c =  0;
+
+				extranames(0) = "z";
+				extranames(1) = "z.end";
+
+				int c =  2;
 				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
 					extranames(c) = it->first;
-					datanames(c) = it->first;
+	//				datanames(c) = it->first;
 					++c;
 				}//rof
+				Rprintf("extranames made\n");
 				extralist.names() = extranames;
-				datanames.names() = datanames;
+				//datanames.names() = datanames;
+				Rprintf("extranames applied\n");
+
+				extralist["z"] = extralist["z.end"] = spcrdr->hdr.fztype;
+				Rprintf("zs assigned\n");
+
 				for( map<string, string>::const_iterator it = spcrdr->parser->log_labeltovalue.begin(); it != spcrdr->parser->log_labeltovalue.end(); ++it ){
 					extralist[it->first] = it->second;
-					data[it->first] = it->second;
+					//data[it->first] = it->second;
 				}//rof
-			}//esle
 
+				/*
 			for(Rcpp::List::iterator lit = extralist.begin(); lit != extralist.end(); ++lit){
 				cout<<"printing:"<<endl;
 				Rcpp::Language list_call("print", *lit);
 				list_call.eval();
 			}//rof
-
-			Rcpp::Language data_check("eval", data);
+			*/
+			Rprintf("extralistsize: %i", extralist.size());
+			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
+			Rcpp::Language data_check("eval", data1);
 			Rcpp::Language data_print("print", data_check.eval());
 			data_print.eval();
 			Rprintf("forming object\n");
-			//Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data ); //log = log, label = lab
-			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X );
+			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+			//Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X );
 			Rprintf("formed object\n");
 			Rprintf("here 1\n");
-			Rcpp::Language printcall("print", hyObj_call.eval());	//<-error here, from object formation no doubt...
-			printcall.eval();
+			//Rcpp::Language printcall("print", hyObj_call.eval());	//<-error here, from object formation no doubt...
+			//printcall.eval();
+			return hyObj_call.eval();
 			Rprintf("here 2\n");
 
 			Rcpp::S4 hyObj( hyObj_call.eval());
@@ -207,9 +219,6 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			Rcpp::Language hysum("summary", hyObj);
 			Rcpp::Language printsum("print", hysum.eval());
 			printsum.eval();
-			//return hyObj;
-			//cout << extranames.size() << end;
-			//cout << extralist.size() << endl;
 			return hyObj;
 
 			break;

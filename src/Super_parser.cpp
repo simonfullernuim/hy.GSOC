@@ -145,6 +145,8 @@ void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset )
 
 
 
+
+
 short Super_parser::read_log(){
 //seekg(JUMP, ios::cur);
 	if( logs_to_collect == 0 || want_log_but_no_log == 1){
