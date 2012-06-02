@@ -244,6 +244,16 @@ typedef struct
 #define SUBHSZ sizeof(SUBHDR)	/* Size of spectrum sub header for disk file. */
 
 
+typedef struct
+{
+	DWORD ssfposn;
+	DWORD ssfsize;
+	DWORD ssftime;
+
+} SSFTC;
+
+#define SSFTCSZ sizeof(SSFTC)
+
 #define FSNOIS fsubh1+subnois+3 /* Byte which is non-zero if subnois valid */
 
 /* This structure defines the entries in the XY subfile directory. */

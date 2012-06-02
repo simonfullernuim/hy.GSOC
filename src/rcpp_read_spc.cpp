@@ -1,4 +1,13 @@
-#ifdef INSIDE
+/*
+ * rcpp_read_spc.cpp
+ *
+ *  Created on: 1 Jun 2012
+ *      Author: simon
+ */
+
+
+
+//#ifdef INSIDE
 
 #define BUFFER 1024
 
@@ -64,8 +73,26 @@ fx <- cxxfunction( signature(x = "example"),
 str( fx( new("example", size=4, id="id_value") ) )
  *
  */
-int main(){
-	//RInside R;
+
+/*
+ * RcppExport SEXP rcpp_read_spc( string _file, vector<string> _hdr2data, vector<string> _log2data,
+		bool log_txt = true, bool log_bin = false, bool log_disk = false, bool no_object = false ){
+ */
+RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
+		SEXP _log_txt, SEXP _log_bin, SEXP _log_disk, SEXP _no_object ){
+	//hdr = list (), // <--- include this!!!
+	BEGIN_RCPP
+
+	string file = Rcpp::as<string>(_file);
+	vector<string> hdr2data = Rcpp::as< vector< string > >( _hdr2data );
+	vector<string> log2data = Rcpp::as< vector< string > >( _log2data );
+	bool log_txt = Rcpp::as< bool >( _log_txt );
+	bool log_bin = Rcpp::as< bool >( _log_bin );
+	bool log_disk = Rcpp::as< bool >( _log_disk );
+	bool no_object = Rcpp::as< bool >( _no_object );
+
+
+
 	//multithreaded IO
 	//http://www.drdobbs.com/go-parallel/article/220300055?pgno=3
 
@@ -87,24 +114,18 @@ Cheers!
 
 thoughton.
 	 */
-	cout << (int) ( (char) 128 ) << endl;
-
-	cout << ( TMULTI | TRANDM ) << endl;
-			//Multifile, Unevenly Spaced X Values, Common X Array
-	cout << ( TMULTI | TXVALS ) << endl; //|TORDRD sub case
-
-	//Multifile, Unevenly Spaced X Values, Unique X arrays..
-	cout << ( TMULTI | TXYXYS | TXVALS ) << endl;
-
-	cout << ( TSPREC | TCGRAM | TMULTI | TRANDM | TORDRD | TALABS | TXYXYS | TXVALS ) << endl;
 
 
 	//SEXP XOb;
 	//Rcpp::S4 Obj(XOb);
 
-
+	//vector<string> hdr2data; vector<string> log2data;
+	//testing log2data
+	//log2data.push_back("PV0");
+	//log2data.push_back("PV1");
+	//log2data = _log2data;
 	ifstream test;
-	string file;
+	//string file = _file;
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/m_xyxy.spc";	// todo: 245 TSPREC | 4 | 16 | TALABS | TXYXYS | TXVALS
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/RAMAN.SPC";	//PASSED: Account for TALABS
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/nir.spc"; //PASSED: Attach Warnings()
@@ -115,18 +136,18 @@ thoughton.
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/s_xy.spc";	//TXVALS	-> PROVIDE ERROR HANDLING for SUBNPTS != NULL
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/s_evenx.spc";	//DEFAULT ->PASSED
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/NMR_FID.SPC";	//PASSED WL and SPC
-	file = "/home/simon/College/GSOC/spc_sdk/Data/NMR_SPC.SPC";	//PASSED WL and SPC
+	//file = "/home/simon/College/GSOC/spc_sdk/Data/NMR_SPC.SPC";	//PASSED WL and SPC
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/Ft-ir.spc";
-	vector<string> hdr2data; vector<string> log2data;
-	//testing log2data
-	log2data.push_back("PV0");
-	log2data.push_back("PV1");
 
 
+	Rprintf("1");
 	SPC_reader* spcrdr = new SPC_reader( file );
+	Rprintf("2");
 	spcrdr->read_proc_hdr();
+	Rprintf("3");
 	cout << "TYPE: " << (int) (spcrdr->hdr.ftflgs &  255 )<< endl;
 	Rcpp::NumericVector X( spcrdr->hdr.fnpts );
+	Rprintf("4");
 	bool TORDRD_case =0;
 	bool TALABS_case = 0;
 	/*
@@ -213,8 +234,6 @@ thoughton.
 				list_call.eval();
 			}//rof
 
-
-
 			Rcpp::Language data_check("eval", data);
 			Rcpp::Language data_print("print", data_check.eval());
 			data_print.eval();
@@ -224,6 +243,8 @@ thoughton.
 			//return hyObj;
 			//cout << extranames.size() << end;
 			//cout << extralist.size() << endl;
+			return hyObj;
+
 			break;
 		}//esac
 		case TMULTI :{
@@ -432,45 +453,13 @@ thoughton.
 
 	*/
 	cout <<"closing main"<<endl;
-	return 1;
+
+	SEXP blah;
+	return blah;
+
+	END_RCPP
 }
 
 
-void ReadFile(char *name)
-{
-	FILE *file;
-	char *buffer;
-	unsigned long fileLen;
+//#endif
 
-	//Open file
-	file = fopen(name, "rb");
-	if (!file)
-	{
-		fprintf(stderr, "Unable to open file %s", name);
-		return;
-	}
-
-	//Get file length
-	fseek(file, 0, SEEK_END);
-	fileLen=ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	//Allocate memory
-	buffer=(char *)malloc(fileLen+1);
-	if (!buffer)
-	{
-		fprintf(stderr, "Memory error!");
-                                fclose(file);
-		return;
-	}
-
-	//Read file contents into buffer
-	fread(buffer, fileLen, 1, file);
-	fclose(file);
-
-	//Do what ever with buffer
-
-	free(buffer);
-}
-
-#endif

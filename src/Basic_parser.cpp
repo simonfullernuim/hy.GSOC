@@ -6,7 +6,7 @@ void Basic_parser::parse_file(){
 	read_proc_subhdr( subhdr );
 	readX( reader_hdr->fnpts );
 	readY( 0, reader_hdr->fnpts, reader_hdr->fexp);
-	uncollected = read_log();
+	read_log();
 }
 
 void Basic_parser::readX(int amt, short row){

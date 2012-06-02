@@ -1,5 +1,5 @@
-src/main.d: ../src/main.cpp ../src/WTypes.h ../src/SPC.h \
- ../src/SPC_reader.h \
+src/rcpp_read_spc.d: ../src/rcpp_read_spc.cpp ../src/WTypes.h \
+ ../src/SPC.h ../src/SPC_reader.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/RcppCommon.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/config.h \

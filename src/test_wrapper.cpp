@@ -4,7 +4,6 @@
  *  Created on: 25 May 2012
  *      Author: simon
  */
-//#ifdef INSIDE
 #include <Rcpp.h>
 //#include <RInside.h>
 
@@ -85,4 +84,3 @@ RcppExport SEXP test_wrapper(){
 }
 
 
-//#endif
