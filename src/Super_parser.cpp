@@ -51,7 +51,7 @@ void Super_parser::readX( int amt ){
 		}//rof
 
 	 */
-	while((ctr=ctr+LINE_MAX)<=ipt_byteRs){
+	while((ctr=ctr+LINE_MAX)<=ipt_bytes){
 		ifstr->read( buffer, LINE_MAX );
 		for(short i = 0; i < LINE_MAX / step; ++i){
 			memcpy(&tmp, buffer+(i*step), step);

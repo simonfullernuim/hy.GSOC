@@ -82,57 +82,27 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 		SEXP _log_txt, SEXP _log_bin, SEXP _log_disk, SEXP _no_object ){
 	//hdr = list (), // <--- include this!!!
 	BEGIN_RCPP
-
+	Rprintf("commencing\n");
 	string file = Rcpp::as<string>(_file);
+	Rprintf("convert file done\n");
 	vector<string> hdr2data = Rcpp::as< vector< string > >( _hdr2data );
+	Rprintf("convert hdr2data done\n");
 	vector<string> log2data = Rcpp::as< vector< string > >( _log2data );
-	bool log_txt = Rcpp::as< bool >( _log_txt );
-	bool log_bin = Rcpp::as< bool >( _log_bin );
-	bool log_disk = Rcpp::as< bool >( _log_disk );
-	bool no_object = Rcpp::as< bool >( _no_object );
+	Rprintf("convert log2data done\n");
+	bool log_txt = (bool) Rcpp::as< int >( _log_txt );
+	bool log_bin = (bool) Rcpp::as< int >( _log_bin );
+	bool log_disk = (bool) Rcpp::as< int >( _log_disk );
+	bool no_object = (bool) Rcpp::as< int >( _no_object );
+	Rprintf("convert bools done\n");
 
 
-
-	//multithreaded IO
-	//http://www.drdobbs.com/go-parallel/article/220300055?pgno=3
-
-
-	//http://www.dreamincode.net/forums/topic/170054-understanding-and-reading-binary-files-in-c/
-	//http://www.dreamincode.net/forums/topic/60185-manipulate-raw-binary-data/
-	//http://stackoverflow.com/questions/9812155/convert-from-unsigned-char-array-to-double
-	//rcpp_hello_world();
-
-
-	/*
-	 * I found the answer! And it's embarrassingly simple.
-
-The problem was that I was using the Release version of SDL instead of the Debug version! (I had 'libsdl' from MacPorts whereas I should have had 'libsdl-devel'.)
-
-So my generic answer is: make sure the libs you're linking against were compiled with debug flags set too, it's not always enough to just make sure your own code has them set.
-
-Cheers!
-
-thoughton.
-	 */
-
-
-	//SEXP XOb;
-	//Rcpp::S4 Obj(XOb);
-
-	//vector<string> hdr2data; vector<string> log2data;
-	//testing log2data
-	//log2data.push_back("PV0");
-	//log2data.push_back("PV1");
-	//log2data = _log2data;
+	Rprintf("Starting file stream");
 	ifstream test;
 	//string file = _file;
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/m_xyxy.spc";	// todo: 245 TSPREC | 4 | 16 | TALABS | TXYXYS | TXVALS
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/RAMAN.SPC";	//PASSED: Account for TALABS
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/nir.spc"; //PASSED: Attach Warnings()
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/ms.spc";		// PASSED I THINK - integer Y values - should these be X - anyway it parses intelligibly: 225: TSPREC | TALABS | TXYXYS | TXVALS
-	/*
-	 * INPUT INFO FROM R
-	 */
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/s_xy.spc";	//TXVALS	-> PROVIDE ERROR HANDLING for SUBNPTS != NULL
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/s_evenx.spc";	//DEFAULT ->PASSED
 	//file = "/home/simon/College/GSOC/spc_sdk/Data/NMR_FID.SPC";	//PASSED WL and SPC
@@ -188,20 +158,6 @@ thoughton.
 
 			spcrdr->parser->parse_file();
 			spcrdr->print_SPCHDR();
-			cout << endl;
-			cout << "X values:" << endl;
-
-
-			for(unsigned int i = 0; i < spcrdr->hdr.fnpts; ++i ){
-				cout <<  setprecision(12) << X(i) << endl;
-			}//rof
-			cout << endl;
-
-			cout << "Y values" << endl;
-			for(unsigned int i = 0; i < spcrdr->hdr.fnpts; ++i ){
-				cout <<  setprecision(12) << Y(0,i) << endl;
-			}//rof
-			cout << endl;
 			//spcrdr->parser->log_labeltovalue.size()
 			Rcpp::List extralist(spcrdr->parser->log_labeltovalue.size());
 			Rcpp::DataFrame data = Rcpp::DataFrame::create();
@@ -237,9 +193,20 @@ thoughton.
 			Rcpp::Language data_check("eval", data);
 			Rcpp::Language data_print("print", data_check.eval());
 			data_print.eval();
+			Rprintf("forming object\n");
+			//Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data ); //log = log, label = lab
+			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X );
+			Rprintf("formed object\n");
+			Rprintf("here 1\n");
+			Rcpp::Language printcall("print", hyObj_call.eval());	//<-error here, from object formation no doubt...
+			printcall.eval();
+			Rprintf("here 2\n");
 
-			Rcpp::Language hyObj_call( "new", "hyperSpec",  Y,  X,  data ); //log = log, label = lab
 			Rcpp::S4 hyObj( hyObj_call.eval());
+			Rprintf("formed S4 object\n");
+			Rcpp::Language hysum("summary", hyObj);
+			Rcpp::Language printsum("print", hysum.eval());
+			printsum.eval();
 			//return hyObj;
 			//cout << extranames.size() << end;
 			//cout << extralist.size() << endl;
