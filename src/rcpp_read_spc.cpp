@@ -50,9 +50,6 @@ those two are the keys to it
 #include <R.h>
 using namespace std;
 
-
-
-
 /*
  * RcppExport SEXP rcpp_read_spc( string _file, vector<string> _hdr2data, vector<string> _log2data,
 		bool log_txt = true, bool log_bin = false, bool log_disk = false, bool no_object = false ){
@@ -125,12 +122,10 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			if(spcrdr->parser->want_log_but_no_log == 1){
 				cout << "WARNING: want log but no log" << endl;
 			}//fi
-			Rcpp::Language licall( "print", extralist );
-			licall.eval();
+		//	Rcpp::Language licall( "print", extralist );
+		//	licall.eval();
 
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create( extralist );
-			Rcpp::Language dfcall("print",data1);
-			dfcall.eval();
 
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
 			return hyObj_call.eval();
@@ -198,7 +193,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
 			spcrdr->parser = new TMULTI_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
-			spcrdr->print_SPCHDR();
+			//spcrdr->print_SPCHDR();
 			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
 			Rcpp::List extralist( list_sz );//include hdr values here also!!!
 			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
@@ -249,39 +244,38 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 				directory(i) = i+1;
 			}
 			hyperSpecList[0] = directory;
+
+			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
+			Rcpp::List extralist( list_sz );//include hdr values here also!!!
+			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
+			spcrdr->parser->arrange_data( extranames, extralist, 1 );
+			if(spcrdr->parser->want_log_but_no_log == 1){
+				//	cout << "WARNING: want log but no log" << endl;
+			}//fi
+			SUBHDR subhdr;
 			for(unsigned int i = 1; i <= spcrdr->hdr.fnsub; ++i){
-				SUBHDR subhdr;
 				spcrdr->ifstr.read( (char*) &subhdr, SUBHSZ );
 
 				Rcpp::NumericVector Xv( subhdr.subnpts );
 				Rcpp::NumericMatrix Y( 1, subhdr.subnpts );
-				Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named( "spc" ) = Rcpp::NumericVector(1), Rcpp::Named( "wavelength") = Rcpp::NumericVector( subhdr.subnpts) );
+				Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named( "spc" ) = Rcpp::NumericVector(1), Rcpp::Named( "wavelength" ) = Rcpp::NumericVector( subhdr.subnpts) );
 
 				spcrdr->parser->parse_file( Xv.begin(), Y.begin(), subhdr.subnpts );
 
 				df["spc"] = Y;
 				df["wavelength"] = Xv;//change when running from R
 
-				short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
-				Rcpp::List extralist( list_sz );//include hdr values here also!!!
-				Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
-				spcrdr->parser->arrange_data( extranames, extralist, 1 );
-									//SORT OUT WARNINGS!!!
-				if(spcrdr->parser->want_log_but_no_log == 1){
-				//	cout << "WARNING: want log but no log" << endl;
-				}//fi
+
 				Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
 				Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  Xv,  Rcpp::Named("data") = data1 );
 				hyperSpecList[i] = hyObj_call.eval();	//BE AWARE THAT THIS CLONES Y VALUES AT THE MOMENT...DUE TO UNREALISTIC DF Structure
-
-				//cout << "completed: " << i+1 << endl;
 			}//rof
-			/*
+
 			if( spcrdr->parser->has_directory() ){
 				spcrdr->parser->parse_directory( directory.begin() );
 				hyperSpecList[spcrdr->hdr.fnpts] = directory;
 			}
-			*/
+
 			/*
 			Rcpp::List::iterator lit = hyperSpecList.begin()+1;
 			for( ; lit != hyperSpecList.end(); ++lit ){
