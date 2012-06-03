@@ -23,21 +23,14 @@
 
 #include "SPC.h"
 
-//#include "SPC_reader.h"
-
-//class SPC_reader;
-
 class Super_parser{
 private:
 protected:
 	Rcpp::NumericVector::iterator X_ptr;
 	Rcpp::NumericMatrix::iterator Y_ptr;
-	//std::map< std::string, bool > hdr2data;
 	std::map< std::string, bool > log2data;
-
-
+	std::map<std::string, std::string >hdr_map;
 public:
-	//SPC_reader * holder_reader;
 	std::ifstream* ifstr;
 	SPC* reader_hdr;
 	SUBHDR subhdr;
@@ -50,9 +43,8 @@ public:
 	bool want_log_but_no_log;
 	short logs_to_collect;
 	short uncollected;
-	//std::map< std::string, std::string > log_labeltovalue;	//these involve a slight overhead in copying the hdr strings, but it is minor since amount is small
-	std::map< std::string, std::string > labeltovalue;
-	std::map<std::string, std::string >hdr_map;
+	std::map< std::string, std::string > labeltovalue;	////these involve a slight overhead in copying the hdr strings, but it is minor since amount is small
+
 
 	bool hasDirectory;
 
@@ -63,8 +55,6 @@ public:
 		prec_shifts = tsprec_subval == 32 ? 5 : 4;
 		get_hdr_data(ipt_hdr2data);
 		check_log(ipt_log2data);
-
-
 	}//rotcurtsnoc
 	//2nd ctr - used for TXYXYS..
 	Super_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data, std::vector< std::string >* ipt_hdr2data )
@@ -72,7 +62,6 @@ public:
 		prec_shifts = tsprec_subval == 32 ? 5 : 4;
 		get_hdr_data(ipt_hdr2data);
 		check_log(ipt_log2data);
-
 	}
 
 	void check_log( std::vector< std::string >* check_log2data );
@@ -89,38 +78,25 @@ public:
 	}
 	virtual ~Super_parser(){}
 	virtual void readX( int amt = 0);
-
 	/*
 	 * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
 	 */
 	void readY(short row, int amt, char fexp, unsigned int _offset = 0);
 
-
 	void parse_directory( Rcpp::NumericVector::iterator it );
 	bool has_directory(){return hasDirectory;}
-	/*
-	void read_proc_logstc(){
-		ifstr->read( (char*) &logstc, LOGSTCSZ );
-	}
-	*/
 
 	short read_log();//DO
 	void print_stored_log();
 	void read_process_subhdr();
 	void set_hdr_map();
+	std::string get_fexper(short fexper);
 	void get_hdr_data(std::vector< std::string>* ipt_hdr2data);
-	void arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& extralist );
+	void arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& extralist, short dimension );
 
-	//virtual Rcpp::NumericMatrix* getX() = 0;
-	//virtual Rcpp::NumericMatrix* getY() = 0;
-
-	//virtual void print_Y() = 0;
-
-	std::string convert_to_str(int n);
-	std::string convert_to_str(double n);
+	std::string convert_to_str(int n, std::stringstream& ss );
+	std::string convert_to_str(double n, std::stringstream& ss);
 	std::string convert_to_str(std::string str){ return str; }
-
-
 };
 
 #endif

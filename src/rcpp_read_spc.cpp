@@ -123,96 +123,57 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 	//switch( spcrdr->hdr.ftflgs ){	//we use polymorphism, but the matrices must be passed in from outside
 	switch( switch_flg ){
 		case 0 :{
-			cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
-
+			//cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(1, spcrdr->hdr.fnpts );
-
-
-			//Rcpp::Language hyObj_call("new", "hyperSpec");
-			//Rcpp::S4 hyObj( hyObj_call.eval() );
-
 			spcrdr->parser = new Basic_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
-
-			//Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named("spc") = Rcpp::NumericVector(1) );
-
 			spcrdr->parser->parse_file();
 			//spcrdr->print_SPCHDR();
-
-			//spcrdr->parser->log_labeltovalue.size()
 			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
 			Rcpp::List extralist( list_sz );//include hdr values here also!!!
 			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
+			spcrdr->parser->arrange_data( extranames, extralist, 1 );//1 dimension
+			//SORT OUT WARNINGS!!!
+			if(spcrdr->parser->want_log_but_no_log == 1){
+				cout << "WARNING: want log but no log" << endl;
+			}//fi
+			Rcpp::Language licall( "print", extralist );
+			licall.eval();
 
-			spcrdr->parser->arrange_data(extranames, extralist);
+			Rcpp::DataFrame data1 = Rcpp::DataFrame::create( extralist );
+			Rcpp::Language dfcall("print",data1);
+			dfcall.eval();
+
+			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+			return hyObj_call.eval();
 
 
-			Rprintf("extralist made\n");
-
-
-
-//			Rcpp::CharacterVector datanames(spcrdr->parser->log_labeltovalue.size());
-
+			break;
+		}//esac
+		case TMULTI :{
+			Rprintf("Case: %i\n",spcrdr->hdr.ftflgs);
+			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
+			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
+			spcrdr->parser->parse_file();
+			//spcrdr->print_SPCHDR();
+			/*
+			cout << "Subexps: " << endl;
+			for( vector<int>::const_iterator it = spcrdr->parser->subexps.begin(); it != spcrdr->parser->subexps.end(); ++it){
+				cout << *it << endl;
+			}//rof
+			*/
+			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
+			Rcpp::List extralist( list_sz );//include hdr values here also!!!
+			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
+			spcrdr->parser->arrange_data( extranames, extralist, spcrdr->hdr.fnsub );
+					//SORT OUT WARNINGS!!!
 			if(spcrdr->parser->want_log_but_no_log == 1){
 				cout << "WARNING: want log but no log" << endl;
 			}//fi
 
 
-
-
-				/*
-			for(Rcpp::List::iterator lit = extralist.begin(); lit != extralist.end(); ++lit){
-				cout<<"printing:"<<endl;
-				Rcpp::Language list_call("print", *lit);
-				list_call.eval();
-			}//rof
-			*/
-			Rprintf("extralistsize: %i", extralist.size());
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
-			Rcpp::Language data_check("eval", data1);
-			Rcpp::Language data_print("print", data_check.eval());
-			data_print.eval();
-			Rprintf("forming object\n");
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
-			//Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X );
-			Rprintf("formed object\n");
-			Rprintf("here 1\n");
-			//Rcpp::Language printcall("print", hyObj_call.eval());	//<-error here, from object formation no doubt...
-			//printcall.eval();
 			return hyObj_call.eval();
-			Rprintf("here 2\n");
-
-			Rcpp::S4 hyObj( hyObj_call.eval());
-			Rprintf("formed S4 object\n");
-			Rcpp::Language hysum("summary", hyObj);
-			Rcpp::Language printsum("print", hysum.eval());
-			printsum.eval();
-			return hyObj;
-
-			break;
-		}//esac
-		case TMULTI :{
-			cout << "Case: " << spcrdr->hdr.ftflgs << endl;
-			Rcpp::NumericMatrix Y(spcrdr->hdr.fnsub, spcrdr->hdr.fnpts );
-			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
-			spcrdr->parser->parse_file();
-			spcrdr->print_SPCHDR();
-			cout << endl;
-			cout << "Y values" << endl;
-			for(unsigned int i = 0; i < spcrdr->hdr.fnsub; ++i){
-				cout << "row: " << i + 1 << endl;
-				for(unsigned int j = 0; j < spcrdr->hdr.fnpts; ++j ){
-					cout << j+1 <<": " << setprecision(12) << Y(i,j) << endl;
-				}//rof
-			}//rof
-			cout << endl;
-			cout << "X values:" << endl;
-			for(unsigned int i = 0; i < spcrdr->hdr.fnpts; ++i ){
-				cout <<  setprecision(12) << X(i) << endl;
-			}//rof
-			cout << "Subexps: " << endl;
-			for( vector<int>::const_iterator it = spcrdr->parser->subexps.begin(); it != spcrdr->parser->subexps.end(); ++it){
-				cout << *it << endl;
-			}//rof
 			break;
 		}
 
@@ -221,17 +182,21 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			Rcpp::NumericMatrix Y(1, spcrdr->hdr.fnpts );
 			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
-			spcrdr->print_SPCHDR();
-			cout << endl;
-			cout << "X values:" << endl;
-			for(unsigned int i = 0; i < spcrdr->hdr.fnpts; ++i ){
-				cout <<  setprecision(12) << X(i) << endl;
-			}//rof
-			cout << "Y values:" << endl;
-			for(unsigned int i = 0; i < spcrdr->hdr.fnpts; ++i ){
-				cout <<  setprecision(12) << Y(0,i) << endl;
-			}//rof
+			//spcrdr->print_SPCHDR();
+			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
+			Rcpp::List extralist( list_sz );//include hdr values here also!!!
+			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
+			spcrdr->parser->arrange_data( extranames, extralist, 1 );
+					//SORT OUT WARNINGS!!!
+			if(spcrdr->parser->want_log_but_no_log == 1){
+				cout << "WARNING: want log but no log" << endl;
+			}//fi
 
+			Rprintf("SUBNPTS: %i\n", spcrdr->parser->subhdr.subnpts);
+
+			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
+			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+			return hyObj_call.eval();
 			break;
 
 		}
