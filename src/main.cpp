@@ -320,7 +320,6 @@ thoughton.
 		case (TMULTI | TXYXYS | TXVALS) :{
 			//PLAN: if we use DIRECTORY - fetch linearly, but store in linked list according to directory structure
 
-
 			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data, &hdr2data );
 			//by default list is ordered
 			Rcpp::List hyperSpecList( spcrdr->hdr.fnsub + 1 );	//extra slot for directory
