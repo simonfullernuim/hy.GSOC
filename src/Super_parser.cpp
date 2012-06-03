@@ -33,7 +33,7 @@ void Super_parser::readX( int amt ){
 	short step = 4;
 	int ipt_bytes = amt * step;
 	int mod_bytes = ipt_bytes % LINE_MAX;
-	double tmp;//NBNBNB Should this BE float??
+	float tmp;//NBNBNB Should this BE float??
 	//Rcpp::NumericVector::iterator xptr = X->begin();
 	/*
 		//ifstr->read( buffer, LINEMAX);
@@ -44,7 +44,6 @@ void Super_parser::readX( int amt ){
 			++xptr
 			//ctr=ctr+1;
 		}//rof
-
 	 */
 	while( (ctr=ctr+LINE_MAX) <= ipt_bytes) {
 		ifstr->read( buffer, LINE_MAX );
@@ -65,6 +64,7 @@ void Super_parser::readX( int amt ){
  * By default offset is reader_hdr->fnsubs --> for TMULTI_TXYXYS_TXVALS this is set to 1
  */
 void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset ){
+
 	unsigned int offset = (_offset == 0) ? reader_hdr->fnsub : _offset;
 	Rcpp::NumericMatrix::iterator rdit = ( Y_ptr +  row );
 	int ctr = 0;
@@ -97,6 +97,7 @@ void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset )
 	}//esle
 	*/
 	if(fexp==(-128)){
+
 		float tmp;
 		while((ctr=ctr+LINE_MAX)<=ipt_bytes){
 			ifstr->read( buffer, LINE_MAX );
