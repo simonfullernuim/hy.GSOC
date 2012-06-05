@@ -69,7 +69,7 @@ public:
 	void read_proc_subhdr( SUBHDR& shr ){
 		ifstr->read( (char*) &shr, SUBHSZ );
 	}
-	virtual void parse_file() = 0;	//abstraction -> although e.g. TXVALS_parser could stand in here
+	virtual void parse_file(){}	//abstraction -> although e.g. TXVALS_parser could stand in here
 	void parse_file( Rcpp::NumericVector::iterator _X_ptr, Rcpp::NumericMatrix::iterator _Y_ptr, unsigned int _npts ){
 		X_ptr = _X_ptr;
 		Y_ptr = _Y_ptr;

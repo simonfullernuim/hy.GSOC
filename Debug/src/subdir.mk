@@ -12,6 +12,7 @@ CPP_SRCS += \
 ../src/TXVALS_parser.cpp \
 ../src/main.cpp \
 ../src/rcpp_hello_world.cpp \
+../src/rcpp_read_Kaiser.cpp \
 ../src/rcpp_read_spc.cpp \
 ../src/test_wrapper.cpp 
 
@@ -24,6 +25,7 @@ OBJS += \
 ./src/TXVALS_parser.o \
 ./src/main.o \
 ./src/rcpp_hello_world.o \
+./src/rcpp_read_Kaiser.o \
 ./src/rcpp_read_spc.o \
 ./src/test_wrapper.o 
 
@@ -36,6 +38,7 @@ CPP_DEPS += \
 ./src/TXVALS_parser.d \
 ./src/main.d \
 ./src/rcpp_hello_world.d \
+./src/rcpp_read_Kaiser.d \
 ./src/rcpp_read_spc.d \
 ./src/test_wrapper.d 
 

@@ -82,7 +82,7 @@ public:
 	~SPC_reader(){
 		//fclose(fp);
 		ifstr.close();
-		//delete parser;
+		delete parser;
 	}
 
 	void read_proc_hdr();

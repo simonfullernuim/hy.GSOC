@@ -128,9 +128,9 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create( extralist );
 
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+
+			delete spcrdr;
 			return hyObj_call.eval();
-
-
 			break;
 		}//esac
 		case TMULTI :{
@@ -139,12 +139,6 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 			spcrdr->parser = new TMULTI_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
 			//spcrdr->print_SPCHDR();
-			/*
-			cout << "Subexps: " << endl;
-			for( vector<int>::const_iterator it = spcrdr->parser->subexps.begin(); it != spcrdr->parser->subexps.end(); ++it){
-				cout << *it << endl;
-			}//rof
-			*/
 			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
 			Rcpp::List extralist( list_sz );//include hdr values here also!!!
 			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
@@ -154,15 +148,16 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 				cout << "WARNING: want log but no log" << endl;
 			}//fi
 
-
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+
+			delete spcrdr;
 			return hyObj_call.eval();
 			break;
 		}
 
 		case TXVALS :{
-			cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
+			//cout << "Case: " << (int) spcrdr->hdr.ftflgs << endl;
 			Rcpp::NumericMatrix Y(1, spcrdr->hdr.fnpts );
 			spcrdr->parser = new TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, X.begin(), Y.begin(), &log2data, &hdr2data );
 			spcrdr->parser->parse_file();
@@ -176,10 +171,11 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 				cout << "WARNING: want log but no log" << endl;
 			}//fi
 			//NB: Should I flag an error here when subnpts is set????
-			//Rprintf("SUBNPTS: %i\n", spcrdr->parser->subhdr.subnpts);
 
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+
+			delete spcrdr;
 			return hyObj_call.eval();
 			break;
 
@@ -205,6 +201,8 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+
+			delete spcrdr;
 			return hyObj_call.eval();
 			break;
 		}
@@ -231,6 +229,8 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 			Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
 			Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  X,  Rcpp::Named("data") = data1 ); //log = log, label = lab
+
+			delete spcrdr;
 			return hyObj_call.eval();
 			break;
 		}
@@ -238,58 +238,53 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 			spcrdr->parser = new TMULTI_TXYXYS_TXVALS_parser( &spcrdr->ifstr, &spcrdr->hdr, spcrdr->tsprec_subval, &log2data, &hdr2data );
 			//by default list is ordered
-			Rcpp::List hyperSpecList( spcrdr->hdr.fnsub + 1 );	//extra slot for directory
+			//Rcpp::List hyperSpecList( spcrdr->hdr.fnsub + 1 );	//extra slot for directory
+			Rcpp::List hyperSpecList( spcrdr->hdr.fnsub );
+
 			Rcpp::NumericVector directory( spcrdr->hdr.fnsub );
 			for(unsigned int i = 0; i < spcrdr->hdr.fnsub; ++i ){
 				directory(i) = i+1;
 			}
-			hyperSpecList[0] = directory;
+			//hyperSpecList[0] = directory;
 
-			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
-			Rcpp::List extralist( list_sz );//include hdr values here also!!!
-			Rcpp::CharacterVector extranames( list_sz );	//include hdr values here also!!!
-			spcrdr->parser->arrange_data( extranames, extralist, 1 );
-			if(spcrdr->parser->want_log_but_no_log == 1){
-				//	cout << "WARNING: want log but no log" << endl;
-			}//fi
+
 			SUBHDR subhdr;
-			for(unsigned int i = 1; i <= spcrdr->hdr.fnsub; ++i){
+			for(unsigned int i = 0; i < spcrdr->hdr.fnsub; ++i){
 				spcrdr->ifstr.read( (char*) &subhdr, SUBHSZ );
 
 				Rcpp::NumericVector Xv( subhdr.subnpts );
 				Rcpp::NumericMatrix Y( 1, subhdr.subnpts );
-				Rcpp::DataFrame df = Rcpp::DataFrame::create( Rcpp::Named( "spc" ) = Rcpp::NumericVector(1), Rcpp::Named( "wavelength" ) = Rcpp::NumericVector( subhdr.subnpts) );
 
 				spcrdr->parser->parse_file( Xv.begin(), Y.begin(), subhdr.subnpts );
 
-				df["spc"] = Y;
-				df["wavelength"] = Xv;//change when running from R
-
-
-				Rcpp::DataFrame data1 = Rcpp::DataFrame::create(extralist);
-				Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named("spc") =  Y, Rcpp::Named("wavelength") =  Xv,  Rcpp::Named("data") = data1 );
-				hyperSpecList[i] = hyObj_call.eval();	//BE AWARE THAT THIS CLONES Y VALUES AT THE MOMENT...DUE TO UNREALISTIC DF Structure
+				//Rcpp::DataFrame data1 = Rcpp::DataFrame::create( extralist );
+				//Rcpp::Language hyObj_call( "new", "hyperSpec",  Rcpp::Named( "spc" ) =  Y, Rcpp::Named( "wavelength" ) =  Xv,  Rcpp::Named( "data" ) = data1 );
+				//hyperSpecList[i] = hyObj_call.eval();	//BE AWARE THAT THIS CLONES Y VALUES AT THE MOMENT...DUE TO UNREALISTIC DF Structure
+				//hyperSpecList[i] = hyObj_call;
+				//hyperSpecList[i] = Rcpp::List::create( Rcpp::Named( "spc" ) = Y, Rcpp::Named( "wavelength" ) =  Xv,  Rcpp::Named( "data" ) = data1 );
+				hyperSpecList[i] = Rcpp::List::create( Rcpp::Named( "spc" ) = Y, Rcpp::Named( "wavelength" ) =  Xv);
 			}//rof
+			//NB: Should I flag an error here when subnpts is set????
 
 			if( spcrdr->parser->has_directory() ){
 				spcrdr->parser->parse_directory( directory.begin() );
-				hyperSpecList[spcrdr->hdr.fnpts] = directory;
 			}
 
-			/*
-			Rcpp::List::iterator lit = hyperSpecList.begin()+1;
-			for( ; lit != hyperSpecList.end(); ++lit ){
-				Rcpp::Language sumcall("summary", *lit);
-				SEXP s = sumcall.eval();
-				Rcpp::Language prints("print", s);
-				prints.eval();
-			}
-			Rcpp::Language callv("eval", *hyperSpecList.begin());
-			Rcpp::Language printv("print", callv.eval());
-			printv.eval();
-			cout << endl;
-			*/
-			return hyperSpecList;
+			short list_sz = spcrdr->parser->labeltovalue.size()  + 2;
+			Rcpp::List extralist( list_sz );//include hdr values here also!!!
+			Rcpp::CharacterVector extranames( list_sz );
+			spcrdr->parser->arrange_data( extranames, extralist, 1 );	//NBNB: Sort out log2gdr for here!! -> can I add it later?
+			if(spcrdr->parser->want_log_but_no_log == 1){
+				//	cout << "WARNING: want log but no log" << endl;
+			}//fi
+			Rcpp::DataFrame data1 = Rcpp::DataFrame::create( extralist );
+			//hyperSpecList[spcrdr->hdr.fnpts] = directory;
+
+			delete spcrdr;
+			return Rcpp::List::create( Rcpp::Named("spcs") = hyperSpecList, Rcpp::Named("data") = data1, Rcpp::Named("idx") = directory);
+			//return Rcpp::List::create( Rcpp::Named("spcs") = hyperSpecList, Rcpp::Named("idx") = directory);
+
+//			return hyperSpecList;
 			break;
 		}
 
@@ -300,7 +295,7 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 	}
 
-	delete spcrdr;
+	delete spcrdr;//move before returns
 
 	cout <<"closing main"<<endl;
 
@@ -309,7 +304,53 @@ RcppExport SEXP rcpp_read_spc( SEXP _file, SEXP _hdr2data, SEXP _log2data,
 
 	END_RCPP
 }
+/*
+ *
+ * label <- list (.wavelength = hdr$fxtype, spc = hdr$fytype,
+					z = hdr$fztype, z.end = hdr$fztype)
+ */
 
+/*
+ * experiments <- c ("General", "Gas Chromatogram", "General Chromatogram", "HPLC Chromatogram",
+			"NIR Spectrum", "UV-VIS Spectrum", "* reserved *", "X-ray diffraction spectrum",
+			"Mass Spectrum", "NMR Spectrum", "Raman Spectrum", "Fluorescence Spectrum",
+			"Atomic Spectrum", "Chroatography Diode Array Data")
+	hdr$fexper <- factor (hdr$fexper + 1, levels = seq_along (experiments))
+	levels (hdr$fexper) <- experiments
+
+	hdr$ftflgs <- .spc.ftflags (hdr$ftflgs)
+
+	hdr$fdate  <- ISOdate (year  = hdr$fdate %/% 1048560,
+			month = hdr$fdate %/% 65536 %%  16,
+			day   = hdr$fdate %/% 2048 %% 32,
+			hour  = hdr$fdate %/% 64 %% 32,
+			min   = hdr$fdate %% 64)
+
+	## interferogram ?
+	## if not, hdr$fpeakpt is set to NULL
+	if (hdr$fytype == 1){
+		if (hdr$fpeakpt != 0)
+			hdr$fpeakpt <- hdr$fpeakpt + 1
+	} else {
+		hdr$fpeakpt <- NULL
+	}
+
+	## set the axis labels
+	if (hdr$ftflgs ['TALABS']) {
+		# TODO: find test data
+		tmp <- rep (0, 4)
+		tmp [seq_along (hdr$fcatxt)] <- nchar (hdr$fcatxt)
+
+		if (tmp [1] > 0) hdr$fxtype <- hdr$fcatxt[1]
+		if (tmp [2] > 0) hdr$fytype <- hdr$fcatxt[2]
+		if (tmp [3] > 0) hdr$fztype <- hdr$fcatxt[3]
+		if (tmp [4] > 0) hdr$fwtype <- hdr$fcatxt[4]
+	}
+	hdr$fxtype <- .spc.xlab (hdr$fxtype)
+	hdr$fytype <- .spc.ylab (hdr$fytype)
+	hdr$fztype <- .spc.xlab (hdr$fztype)
+	hdr$fwtype <- .spc.xlab (hdr$fwtype)
+ */
 
 
 //#endif
