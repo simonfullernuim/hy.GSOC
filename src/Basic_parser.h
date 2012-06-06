@@ -32,7 +32,7 @@ public:
 	}
 	void parse_file();
 	virtual ~Basic_parser(){}
-	virtual void readX(int amt, short row = 0 );
+	virtual void readX(int amt = 0 );
 
 	//virtual Rcpp::NumericMatrix* getX(){ return &X; }
 	//virtual Rcpp::NumericMatrix* getY(){ return &Y;}

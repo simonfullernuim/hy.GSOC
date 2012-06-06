@@ -46,6 +46,8 @@ class SPC_reader{
 private:
 protected:
 public:
+	static const std::string FXTYPE[];
+	static const std::string FYTYPE[];
 
 	SPCHDR hdr;
 	//NOTE: SUBHDR is held in the instantiated parse type since some have several SUBHDRS
@@ -53,22 +55,14 @@ public:
 	std::ifstream ifstr;
 	std::string file_loc;
 	//perhaps some sort of index ptr
-	//Rcpp::Rstreambuf rbf;
 	Super_parser * parser;
 	short file_type;
 	char buffer[LINE_MAX];	//should be stack or heap?
-	//ftflgs bools for TSPREC and TORDRD
 	bool isTSPREC;	//i.e. has 16-bit int blocks		--> "Only if fex[ is no 0x08h"
 	short tsprec_subval;
 	bool isTORDRD;
 	bool isTALABS;
 
-//size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream
-//int fgetpos(FILE *stream, fpos_t *pos);
-//int fsetpos(FILE *stream, const fpos_t *pos);
-//int feof(FILE *stream);
-
-//	http://courses.cs.vt.edu/~cs2604/fall02/binio.html
 	//friend class Super_parser;
 	//friend class Basic_parser;
 
@@ -76,11 +70,9 @@ public:
 		file_loc = ipt_file_loc;
 		file_type = ipt_file_type;
 		tsprec_subval = 32; //unless told otherwise..
-		//fp = fopen(ipt_file_loc.c_str(), "r");
 		ifstr.open( ipt_file_loc.c_str(), std::ios_base::in | std::ios_base::binary );
 	}
 	~SPC_reader(){
-		//fclose(fp);
 		ifstr.close();
 		delete parser;
 	}
@@ -90,7 +82,13 @@ public:
 		parser->parse_file();
 	}
 
-	//void print_Y(){ parser->print_Y(); }
+	static std::string get_FX( int i ){
+		return ( i >= 0 && i < 31 ) ? FXTYPE[i] : "NA";
+	}
+
+	static std::string get_FY( int i ){
+		return ( i >= -1 && i < 31 ) ? FYTYPE[i+1] : ( ( i >= 128 && i <= 131 ) ? FYTYPE[i-100] : "NA" );
+	}
 
 	bool checkNativeEndianness(){
 		ushort a=0x1234;
@@ -101,9 +99,8 @@ public:
 	}
 
 	void print_SPCHDR();
-	//std::iftream ifs( "filename" );
-	//ifs.read( (char*)data, size ); // still "high-level"
-	//ifs.rdbuf()->sgetn( (char*)data, size ); // low-level
+
+
 };
 
 #endif /* SPC_READER_H_ */

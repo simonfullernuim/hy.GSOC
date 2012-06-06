@@ -29,7 +29,9 @@ protected:
 	Rcpp::NumericVector::iterator X_ptr;
 	Rcpp::NumericMatrix::iterator Y_ptr;
 	std::map< std::string, bool > log2data;
+
 	std::map<std::string, std::string >hdr_map;
+
 public:
 	std::ifstream* ifstr;
 	SPC* reader_hdr;
@@ -88,8 +90,10 @@ public:
 
 	short read_log();//DO
 	void print_stored_log();
-	void read_process_subhdr();
+
 	void set_hdr_map();
+	void set_FX();
+	void set_FY();
 	std::string get_fexper(short fexper);
 	void get_hdr_data(std::vector< std::string>* ipt_hdr2data);
 	void arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& extralist, short dimension );
@@ -97,6 +101,9 @@ public:
 	std::string convert_to_str(int n, std::stringstream& ss );
 	std::string convert_to_str(double n, std::stringstream& ss);
 	std::string convert_to_str(std::string str){ return str; }
+
+
+
 };
 
 #endif

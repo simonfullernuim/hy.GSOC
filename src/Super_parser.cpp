@@ -97,7 +97,6 @@ void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset )
 	}//esle
 	*/
 	if(fexp==(-128)){
-
 		float tmp;
 		while((ctr=ctr+LINE_MAX)<=ipt_bytes){
 			ifstr->read( buffer, LINE_MAX );
@@ -304,6 +303,8 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	// hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));
 }
 
+
+
 string Super_parser::get_fexper(short fexper){
 	switch(fexper){
 		case SPCGEN : return("General");
@@ -336,3 +337,4 @@ inline string Super_parser::convert_to_str(double number, stringstream& ss ){
    ss << number;//add number to the stream
    return ss.str();//return a string with the contents of the stream
 }
+
