@@ -4,16 +4,14 @@
 #include "Super_parser.h"
 #include "Basic_parser.h"
 #include "TXVALS_parser.h"
-//#include "main_functions.hpp"
-using namespace std;
 
+using namespace std;
 
 void switch_flag( BYTE& hdrflag, BYTE& switch_flg, bool& TORDRD_case, bool& TALABS_case);
 
 RcppExport SEXP rcpp_read_Kaiser( SEXP _files, SEXP _hdr2data, SEXP _log2data ){
 
 BEGIN_RCPP
-
 
 	Rcpp::List files( _files );
 	vector<string> hdr2data = Rcpp::as< vector< string > >( _hdr2data );
@@ -99,7 +97,6 @@ BEGIN_RCPP
 				break;
 			}
 		}//hctiws
-
 		spcrdr->parser->readY(idx, spcrdr->hdr.fnpts, spcrdr->hdr.fexp, nrows);
 		spcrdr->parser->read_log();
 
@@ -126,12 +123,11 @@ BEGIN_RCPP
 	return hyObj_call;//return unevaluated LANGSXP and evaluate in R
 
 END_RCPP
-}
-
+}//cnuf
 
 
 void switch_flag( BYTE& hdrflag, BYTE& switch_flg, bool& TORDRD_case, bool& TALABS_case){
-if( (hdrflag & TSPREC) == TSPREC ){
+	if( (hdrflag & TSPREC) == TSPREC ){
 		switch_flg = switch_flg - 1;
 	}
 	if( (hdrflag & TORDRD) == TORDRD ){
@@ -142,4 +138,4 @@ if( (hdrflag & TSPREC) == TSPREC ){
 		TALABS_case = 1;
 		switch_flg = switch_flg - TALABS;
 	}
-}
+}//cnuf

@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../src/TMULTI_TXVALS.cpp \
 ../src/TMULTI_parser.cpp \
 ../src/TXVALS_parser.cpp \
+../src/collapse.cpp \
 ../src/main.cpp \
 ../src/rcpp_hello_world.cpp \
 ../src/rcpp_read_Kaiser.cpp \
@@ -23,6 +24,7 @@ OBJS += \
 ./src/TMULTI_TXVALS.o \
 ./src/TMULTI_parser.o \
 ./src/TXVALS_parser.o \
+./src/collapse.o \
 ./src/main.o \
 ./src/rcpp_hello_world.o \
 ./src/rcpp_read_Kaiser.o \
@@ -36,6 +38,7 @@ CPP_DEPS += \
 ./src/TMULTI_TXVALS.d \
 ./src/TMULTI_parser.d \
 ./src/TXVALS_parser.d \
+./src/collapse.d \
 ./src/main.d \
 ./src/rcpp_hello_world.d \
 ./src/rcpp_read_Kaiser.d \
