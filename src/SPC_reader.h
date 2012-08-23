@@ -26,23 +26,8 @@
 #include "Super_parser.h"
 //#include "Basic_parser.h"
 
-//class Super_parser;
-//class Basic_parser;
-//using namespace Rcpp;
-
-/*
- * read.spc <- function (filename,
-		keys.hdr2data = c('fexper', 'fres', 'fsource'), keys.hdr2log = c('fdate', 'fpeakpt'),
-		keys.log2data = FALSE, keys.log2log = TRUE,
-		log.txt = TRUE, log.bin = FALSE, log.disk = FALSE,
-		hdr = list (),
-		no.object = FALSE)
- *
- */
-
-
 class SPC_reader{
-	//set RInside for using Rcpp types in debugging
+
 private:
 protected:
 public:
@@ -51,10 +36,9 @@ public:
 
 	SPCHDR hdr;
 	//NOTE: SUBHDR is held in the instantiated parse type since some have several SUBHDRS
-	std::FILE *fp;
 	std::ifstream ifstr;
 	std::string file_loc;
-	//perhaps some sort of index ptr
+
 	Super_parser * parser;
 	short file_type;
 	char buffer[LINE_MAX];	//should be stack or heap?
@@ -72,8 +56,9 @@ public:
 		tsprec_subval = 32; //unless told otherwise..
 		ifstr.open( ipt_file_loc.c_str(), std::ios_base::in | std::ios_base::binary );
 	}
+	SPC_reader(){}
 	~SPC_reader(){
-		ifstr.close();
+		ifstr.close();//is this okay with default constructor??
 		delete parser;
 	}
 
@@ -99,8 +84,6 @@ public:
 	}
 
 	void print_SPCHDR();
-
-
 };
 
 #endif /* SPC_READER_H_ */

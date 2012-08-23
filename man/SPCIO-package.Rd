@@ -1,13 +1,13 @@
-\name{SPCIO-package}
-\alias{SPCIO-package}
+\name{SPCIO}
 \alias{SPCIO}
 \docType{package}
 \title{
-What the package does (short line)
+File-IO interface to read SPC files into R as hyperSpec S4 objects.
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Employs Rcpp to read SPC files into R as hyperSpec objects.
+Both standard SPC and Kaiser structured formats are supported.
+Also includes rcpp.collapse, a more efficient version of hyperSpec's collapse function.
 }
 \details{
 \tabular{ll}{
@@ -15,26 +15,20 @@ Package: \tab SPCIO\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2012-05-11\cr
-License: \tab What license is it under?\cr
+License: \tab GPL (>=3)\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
 }
 \author{
-Who wrote it
-
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Simon Fuller, Claudia Beleites
+Maintainer: Simon Fuller <simonfuller9@gmail.com>
 }
 \references{
-~~ Literature or other references for background information ~~
+See Claudia Beleites' hyperSpec package vignettes for more information on the hyperSpec package.
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
-\keyword{ package }
+\keyword{ SPC, hyperSpec, Rcpp }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
-%% ~~ simple examples of the most important functions ~~
+ob1 <- rcpp.read.spc('/home/simon/SPC_files/s_xy.spc')
+ob2 <- rcpp.read.Kaiser('/home/simon/spc.Kaisermap/*')
 }

@@ -257,8 +257,9 @@ src/rcpp_read_Kaiser.d: ../src/rcpp_read_Kaiser.cpp \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rwilcox.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rsignrank.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rhyper.h \
- ../src/SPC_reader.h ../src/SPC.h ../src/WTypes.h ../src/Super_parser.h \
- ../src/Basic_parser.h ../src/TXVALS_parser.h
+ ../src/main_subfunctions.h ../src/WTypes.h ../src/SPC.h \
+ ../src/SPC_reader.h ../src/Super_parser.h ../src/Basic_parser.h \
+ ../src/TXVALS_parser.h
 
 /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp.h:
 
@@ -788,11 +789,13 @@ src/rcpp_read_Kaiser.d: ../src/rcpp_read_Kaiser.cpp \
 
 /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rhyper.h:
 
-../src/SPC_reader.h:
+../src/main_subfunctions.h:
+
+../src/WTypes.h:
 
 ../src/SPC.h:
 
-../src/WTypes.h:
+../src/SPC_reader.h:
 
 ../src/Super_parser.h:
 

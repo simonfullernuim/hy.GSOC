@@ -1,5 +1,6 @@
 #include <string>
 #include <Rcpp.h>
+#include "main_subfunctions.h"
 #include "SPC_reader.h"
 #include "Super_parser.h"
 #include "Basic_parser.h"
@@ -7,7 +8,6 @@
 
 using namespace std;
 
-void switch_flag( BYTE& hdrflag, BYTE& switch_flg, bool& TORDRD_case, bool& TALABS_case);
 
 RcppExport SEXP rcpp_read_Kaiser( SEXP _files, SEXP _hdr2data, SEXP _log2data ){
 
@@ -57,7 +57,7 @@ BEGIN_RCPP
 			break;
 		}
 		default:{
-			Rprintf( "Invalid Format: %i - Exiting.\n", spcrdr->hdr.ftflgs );
+			Rcpp::Rcout << "Invalid Format: " << spcrdr->hdr.ftflgs << "- Exiting." << endl;
 			return 0;
 			break;
 		}
@@ -92,7 +92,7 @@ BEGIN_RCPP
 				break;
 			}
 			default:{
-				Rprintf("Invalid Format: %i - Exiting.\n", spcrdr->hdr.ftflgs);
+				Rcpp::Rcout << "Invalid Format: " << spcrdr->hdr.ftflgs << "- Exiting." << endl;
 				return 0;
 				break;
 			}
@@ -126,16 +126,4 @@ END_RCPP
 }//cnuf
 
 
-void switch_flag( BYTE& hdrflag, BYTE& switch_flg, bool& TORDRD_case, bool& TALABS_case){
-	if( (hdrflag & TSPREC) == TSPREC ){
-		switch_flg = switch_flg - 1;
-	}
-	if( (hdrflag & TORDRD) == TORDRD ){
-		TORDRD_case = 1;
-		switch_flg = switch_flg - TORDRD;
-	}
-	if( (hdrflag & TALABS) == TALABS ){
-		TALABS_case = 1;
-		switch_flg = switch_flg - TALABS;
-	}
-}//cnuf
+

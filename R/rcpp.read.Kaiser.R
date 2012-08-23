@@ -7,7 +7,7 @@ rcpp.read.Kaiser <- function  (filenames,
 		glob = TRUE)	{
 	require("Rcpp")
 	if(glob){
-		files<-Sys.glob(files)
+		filenames<-Sys.glob(filenames)
 	}
 
 	return (eval ( .Call( "rcpp_read_Kaiser", 

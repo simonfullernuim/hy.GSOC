@@ -2,9 +2,8 @@
  * Super_parser.cpp
  *
  *  Created on: 16 May 2012
- *      Author: simon
+ *      Author: simon fuller
  */
-
 
 #include "Super_parser.h"
 using namespace std;
@@ -69,7 +68,6 @@ void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset )
 	Rcpp::NumericMatrix::iterator rdit = ( Y_ptr +  row );
 	int ctr = 0;
 	short step = tsprec_subval / 8;
-	//short step = 4;
 	int ipt_bytes = amt * step;
 	int mod_bytes = ipt_bytes % LINE_MAX;
 	//int mod_amt = amt % LINE_MAX;
@@ -173,7 +171,7 @@ short Super_parser::read_log(){
 //test function - remove
 void Super_parser::print_stored_log(){
 	for( std::map< std::string, std::string >::const_iterator it = labeltovalue.begin(); it != labeltovalue.end(); ++it  ){
-		std::cout << it->first << ":\t" << it->second << std::endl;
+		Rcpp::Rcout << it->first << ":\t" << it->second << std::endl;
 	}//rof
 }//cnuf
 
@@ -197,21 +195,19 @@ void Super_parser::arrange_data( Rcpp::CharacterVector& extranames, Rcpp::List& 
 		++c;
 	}//rof
 	extralist.names() = extranames;
-
 	Rcpp::CharacterVector tmp( dimension );
 	stringstream ss;
 	string z = convert_to_str( reader_hdr->fztype, ss );
 	for( short i = 0; i < dimension; ++i ){
 		tmp(i) = z;
 	}//rof
-	extralist["z"] =  Rcpp::clone(tmp);
-	extralist["z.end"] =  Rcpp::clone(tmp);
-
+	extralist[ "z" ] =  Rcpp::clone( tmp );
+	extralist[ "z.end" ] =  Rcpp::clone( tmp );
 	for( map<string, string>::const_iterator it = labeltovalue.begin(); it != labeltovalue.end(); ++it ){
 		for( short i = 0; i < dimension; ++i){
 			tmp(i) = it->second;
 		}//rof
-		extralist[it->first] =  Rcpp::clone(tmp);
+		extralist[ it->first ] =  Rcpp::clone( tmp );
 	}//rof
 }//cnuf
 
@@ -251,11 +247,9 @@ void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_ve
 	delete [] offsets;
 	delete [] offset_indices;
 }//cnuf
-//make the whole map a string map;
-//this is a little more time consuming than we want but:
-//a) it avoids a lot of trouble trying to handle the struct types..
-//b) it is a constant independent of the size of the data
-//c) it is quite small
+
+
+//should I include some sort of a type index for recasting to type??
 void Super_parser::set_hdr_map(){//nb check char versions..
 	stringstream ss;
 	hdr_map.insert(std::make_pair("ftflgs", convert_to_str(reader_hdr->ftflgs,ss)));
@@ -300,9 +294,8 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	hdr_map.insert(std::make_pair("fwplanes", convert_to_str((int)reader_hdr->fwplanes,ss)));
 	hdr_map.insert(std::make_pair("fwinc", convert_to_str(reader_hdr->fwinc,ss)));
 	hdr_map.insert(std::make_pair("fwtype", convert_to_str(reader_hdr->fwtype,ss)));
-	// hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));
+	// hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));	//reserved
 }
-
 
 
 string Super_parser::get_fexper(short fexper){

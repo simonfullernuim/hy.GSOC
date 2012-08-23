@@ -256,7 +256,9 @@ src/collapse.d: ../src/collapse.cpp \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rlogis.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rwilcox.h \
  /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rsignrank.h \
- /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rhyper.h
+ /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rhyper.h \
+ ../src/SPC.h ../src/WTypes.h ../src/SPC_reader.h ../src/Super_parser.h \
+ ../src/main_subfunctions.h
 
 /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp.h:
 
@@ -785,3 +787,13 @@ src/collapse.d: ../src/collapse.cpp \
 /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rsignrank.h:
 
 /home/simon/R/x86_64-pc-linux-gnu-library/2.15/Rcpp/include/Rcpp/stats/random/rhyper.h:
+
+../src/SPC.h:
+
+../src/WTypes.h:
+
+../src/SPC_reader.h:
+
+../src/Super_parser.h:
+
+../src/main_subfunctions.h:

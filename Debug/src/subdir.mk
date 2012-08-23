@@ -10,13 +10,13 @@ CPP_SRCS += \
 ../src/TMULTI_TXVALS.cpp \
 ../src/TMULTI_parser.cpp \
 ../src/TXVALS_parser.cpp \
-../src/blas_test.cpp \
 ../src/collapse.cpp \
 ../src/main.cpp \
+../src/main_subfunctions.cpp \
 ../src/rcpp_hello_world.cpp \
+../src/rcpp_loess.cpp \
 ../src/rcpp_read_Kaiser.cpp \
-../src/rcpp_read_spc.cpp \
-../src/test_wrapper.cpp 
+../src/rcpp_read_spc.cpp 
 
 OBJS += \
 ./src/Basic_parser.o \
@@ -25,13 +25,13 @@ OBJS += \
 ./src/TMULTI_TXVALS.o \
 ./src/TMULTI_parser.o \
 ./src/TXVALS_parser.o \
-./src/blas_test.o \
 ./src/collapse.o \
 ./src/main.o \
+./src/main_subfunctions.o \
 ./src/rcpp_hello_world.o \
+./src/rcpp_loess.o \
 ./src/rcpp_read_Kaiser.o \
-./src/rcpp_read_spc.o \
-./src/test_wrapper.o 
+./src/rcpp_read_spc.o 
 
 CPP_DEPS += \
 ./src/Basic_parser.d \
@@ -40,13 +40,13 @@ CPP_DEPS += \
 ./src/TMULTI_TXVALS.d \
 ./src/TMULTI_parser.d \
 ./src/TXVALS_parser.d \
-./src/blas_test.d \
 ./src/collapse.d \
 ./src/main.d \
+./src/main_subfunctions.d \
 ./src/rcpp_hello_world.d \
+./src/rcpp_loess.d \
 ./src/rcpp_read_Kaiser.d \
-./src/rcpp_read_spc.d \
-./src/test_wrapper.d 
+./src/rcpp_read_spc.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

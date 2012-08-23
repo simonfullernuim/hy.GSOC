@@ -58,7 +58,7 @@ public:
 		get_hdr_data(ipt_hdr2data);
 		check_log(ipt_log2data);
 	}//rotcurtsnoc
-	//2nd ctr - used for TXYXYS..
+
 	Super_parser( std::ifstream* ipt_ifstr, SPC* ipt_reader_hdr, short ipt_tsprec_subval, std::vector< std::string >* ipt_log2data, std::vector< std::string >* ipt_hdr2data )
 		:  ifstr( ipt_ifstr ), reader_hdr( ipt_reader_hdr ),tsprec_subval( ipt_tsprec_subval ){
 		prec_shifts = tsprec_subval == 32 ? 5 : 4;
@@ -101,8 +101,6 @@ public:
 	std::string convert_to_str(int n, std::stringstream& ss );
 	std::string convert_to_str(double n, std::stringstream& ss);
 	std::string convert_to_str(std::string str){ return str; }
-
-
 
 };
 

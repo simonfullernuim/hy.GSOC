@@ -1,11 +1,11 @@
 Package: SPCIO
 Type: Package
-Title: What the package does (short line)
+Title: File-IO for SPC file format
 Version: 1.0
 Date: 2012-05-11
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What Licence is it under ?
-Depends: Rcpp (>= 0.9.10)
+Author: Simon Fuller, Cluadia Beleites
+Maintainer: Simon Fuller <simonfuller9@gmail.com>
+Description: Provides efficient file reading of SPC files into R as hyperSpec objects. Employs Rcpp. Both standard SPC and Kaiser structure files are supported.
+License: GPL (>=3)
+Depends: hyperSpec, Rcpp (>= 0.9.10)
 LinkingTo: Rcpp
