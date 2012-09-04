@@ -20,13 +20,13 @@ std::map<std::string, std::string >hdr_map;
 
 RcppExport SEXP collapse( SEXP _hyObjList ){
 	BEGIN_RCPP
-
 	map<double,int> wl_map;
 	map<string, int> extra_data_map;
 	Rcpp::List hyObjList( _hyObjList );
 	Rcpp::List::iterator lit;
 	string tmp_str;
-
+	vector<int> num_spec_rows;	//num spectra in each object
+	int total_num_spec_rows = 0;
 	for( lit = hyObjList.begin(); lit != hyObjList.end(); ++lit ){
 		Rcpp::S4 tmp( (SEXP) *lit );
 		Rcpp::NumericVector wl = tmp.slot( "wavelength" );
@@ -40,6 +40,10 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 		for( Rcpp::NumericVector::iterator it = wl.begin(); it != wl.end(); ++it ){
 			++wl_map[*it];
 		}//rof
+		Rcpp::Language nrow( "nrow", tmp );
+		int r = Rcpp::as< int >( nrow.eval() );
+		num_spec_rows.push_back(r);
+		total_num_spec_rows += r;
 	}//rof
 	Rcpp::NumericVector wavelength( wl_map.size() );
 	int map_idx = 0;
@@ -56,7 +60,7 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 		datanames( map_idx ) = mit->first;
 		++map_idx;
 	}//rof
-	int nrow = hyObjList.size();		//if we have several spcs for some objects we can simply count them when iterating through wavelengths by dimension calls - should be fairly cheap
+	int nrow = total_num_spec_rows;		//if we have several spcs for some objects we can simply count them when iterating through wavelengths by dimension calls - should be fairly cheap
 	int ncol = wl_map.size();
 	int ndata = extra_data_map.size();
 	Rcpp::NumericMatrix spc( nrow, ncol );
@@ -64,42 +68,51 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 
 	int pos, insert_pos;
 	int mat_idx = 0;
-
+	vector<int>::const_iterator nrow_it = num_spec_rows.begin();
 	for( lit = hyObjList.begin(); lit != hyObjList.end(); ++lit ){
 		Rcpp::S4 tmp( (SEXP) *lit);
 		Rcpp::DataFrame df2 = tmp.slot( "data" );		//only one spectrum...
 		Rcpp::List label = tmp.slot( "label" );
 		Rcpp::NumericMatrix spec = df2["spc"];
+
 		Rcpp::NumericVector wl = tmp.slot( "wavelength" );
 		pos = 0;
-		for( int i = 0; i < wl.size(); ++i ){
-			insert_pos = wl_map[ wl(i) ];	//assigning NAs here rather than separate loop is preferable, in that some cases might not be sparse, and have few NAs
-			while( pos < insert_pos ){
-				spc( mat_idx, pos ) = NA_REAL;
+		for( int j = 0; j < *nrow_it; ++j ){
+			for( int i = 0; i < wl.size(); ++i ){
+				insert_pos = wl_map[ wl(i) ];	//assigning NAs here rather than separate loop is preferable, in that some cases might not be sparse, and have few NAs
+				while( pos < insert_pos ){
+					spc[ mat_idx + j, pos ] = NA_REAL;
+					++pos;
+				}//elihw
+				spc[ mat_idx + j, wl_map[ wl(i) ] ] = spec[ j, i ];//NB assuming only one row in each spec - this can be changed
 				++pos;
-			}//elihw
-			spc( mat_idx, wl_map[ wl(i) ] ) = spec( 0, i );//NB assuming only one row in each spec - this can be changed
-			++pos;
+			}//rof
 		}//rof
+
 		Rcpp::Language datanames2( "names", df2 );
+
 		Rcpp::CharacterVector data( datanames2.eval() );
 
 		pos = 0;
 		for( Rcpp::CharacterVector::iterator cit = data.begin(); cit != data.end(); ++cit ){
+
 			Rcpp::CharacterVector tmpcv(*cit);
 			tmp_str = Rcpp::as< string >( tmpcv );
+			Rcpp::NumericVector datavec = df2[ tmp_str ];
 			insert_pos = extra_data_map[ tmp_str ];
+
 			while( pos < insert_pos ){
-				extra_data( mat_idx, pos ) = NA_REAL;
+				extra_data[ mat_idx, pos ] = NA_REAL;
 				++pos;
 			}//elihw
 			if( tmp_str != "spc" ){
-							//this only works for the numerics - change
-				extra_data( mat_idx, insert_pos ) = Rcpp::as< double >( df2[ tmp_str ] );
+				for( int i = 0; i < *nrow_it; ++i ){	//add row for all spectra
+					extra_data[ mat_idx + i, insert_pos ] = datavec[ i ];
+				}//rof
 			}//fi
 			++pos;
 		}//rof
-		++mat_idx;
+		mat_idx += *nrow_it;
 	}//rof
 	Rcpp::DataFrame df( extra_data );
 	df.names() = datanames;
@@ -109,22 +122,6 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 	END_RCPP
 }//cnuf
 
-
-inline string convert_to_str(int number, stringstream& ss ){
-   ss.clear();
-   ss.str("");
-   ss << number;//add number to the stream
-   return ss.str();//return a string with the contents of the stream
-}//cnuf
-
-inline string convert_to_str(double number, stringstream& ss ){
-   ss.clear();
-   ss.str("");
-   ss << number;//add number to the stream
-   return ss.str();//return a string with the contents of the stream
-}
-
-inline std::string convert_to_str( std::string str ){ return str; }
 
 void set_hdr_map(){//nb check char versions..
 	stringstream ss;
