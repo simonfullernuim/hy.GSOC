@@ -8,23 +8,17 @@
 #ifndef SPC_READER_H_
 #define SPC_READER_H_
 
-#ifndef LINE_MAX
-#define LINE_MAX _POSIX2_LINE_MAX
-#endif
-
 #define DSIZE 8
 
 #include <stdio.h>
-//#include <R.h>
 #include <Rcpp.h>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <limits.h>	//http://stackoverflow.com/questions/3552095/sensible-line-buffer-size-in-c       --> for buffer size
+#include <limits.h>
 
 #include "SPC.h"
 #include "Super_parser.h"
-//#include "Basic_parser.h"
 
 class SPC_reader{
 
@@ -35,20 +29,17 @@ public:
 	static const std::string FYTYPE[];
 
 	SPCHDR hdr;
-	//NOTE: SUBHDR is held in the instantiated parse type since some have several SUBHDRS
 	std::ifstream ifstr;
 	std::string file_loc;
 
 	Super_parser * parser;
 	short file_type;
-	char buffer[LINE_MAX];	//should be stack or heap?
-	bool isTSPREC;	//i.e. has 16-bit int blocks		--> "Only if fex[ is no 0x08h"
+	char buffer[LINE_MAX];
+	bool isTSPREC;	//i.e. has 16-bit int blocks
 	short tsprec_subval;
 	bool isTORDRD;
 	bool isTALABS;
 
-	//friend class Super_parser;
-	//friend class Basic_parser;
 
 	SPC_reader( std::string ipt_file_loc, short ipt_file_type = 1 ){// : file_loc( ipt_file_loc ), file_type( ipt_file_type ){
 		file_loc = ipt_file_loc;

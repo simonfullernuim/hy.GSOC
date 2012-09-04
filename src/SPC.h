@@ -130,7 +130,17 @@
 #ifndef SPC_H
 #define SPC_H
 
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 8192
+#endif
+
+#ifndef FL_BUF_SIZE
+#define FL_BUF_SIZE BUFFER_SIZE / 4
+#endif
+
 #include "WTypes.h"
+
 //SPCHDR
 typedef struct SPC
    {

@@ -12,10 +12,7 @@ void TXVALS_parser::parse_file(){
 	readX( reader_hdr->fnpts );
 	read_proc_subhdr( subhdr );
 	if(subhdr.subnpts!=0){
-		//ERROR HANDLING
-		/*
-		 * RETURN AN ERROR IN DATA? IF NOT PROCESSED??
-		 */
+		Rcpp::Rcout <<"No points given in subheader" << std::endl;
 	}
 
 	readY( 0, reader_hdr->fnpts, reader_hdr->fexp);

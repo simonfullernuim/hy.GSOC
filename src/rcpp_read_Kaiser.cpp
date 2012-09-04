@@ -108,7 +108,6 @@ BEGIN_RCPP
 		++idx;
 	}//rof
 
-	//Hack to create a vector of character strings - only way??
 	Rcpp::Language cfiles( "as.character", files );
 
 	Rcpp::DataFrame data = Rcpp::DataFrame::create( Rcpp::Named("x") = X_pos, Rcpp::Named("y") = Y_pos, Rcpp::Named("z") = Z_pos, Rcpp::Named("file") = cfiles.eval() );

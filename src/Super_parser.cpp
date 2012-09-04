@@ -31,31 +31,19 @@ void Super_parser::readX( int amt ){
 	int ctr = 0;
 	short step = 4;
 	int ipt_bytes = amt * step;
-	int mod_bytes = ipt_bytes % LINE_MAX;
-	float tmp;//NBNBNB Should this BE float??
-	//Rcpp::NumericVector::iterator xptr = X->begin();
-	/*
-		//ifstr->read( buffer, LINEMAX);
-		for(short i = 0; i < amt; i++){
-		//	cout << "ctr: " << ctr << endl;
-			ifstr->read( (char*)&tmp, step );
-			*xptr = (double) tmp * pow((double)2, reader_hdr->fexp - tsprec_subval);
-			++xptr
-			//ctr=ctr+1;
-		}//rof
-	 */
-	while( (ctr=ctr+LINE_MAX) <= ipt_bytes) {
-		ifstr->read( buffer, LINE_MAX );
-		for(short i = 0; i < LINE_MAX / step; ++i){
-			memcpy( &tmp, buffer + ( i * step ), step );
-			*X_ptr = tmp;
+	int mod_bytes = ipt_bytes % BUFFER_SIZE;
+	float tmp_buffer[FL_BUF_SIZE];
+
+	while( (ctr=ctr+BUFFER_SIZE) <= ipt_bytes) {
+		ifstr->read((char*) tmp_buffer, BUFFER_SIZE );
+		for(short i = 0; i < BUFFER_SIZE / step; ++i){
+			*X_ptr = tmp_buffer[i];
 			++X_ptr;
 		}//rof
 	}//elihw
-	ifstr->read( buffer, mod_bytes );
+	ifstr->read( (char*) tmp_buffer, mod_bytes );
 	for( short i = 0; i < mod_bytes/step; ++i){
-		memcpy(&tmp, buffer+(i*step), step);
-		*X_ptr = tmp;
+		*X_ptr = tmp_buffer[i];
 		++X_ptr;
 	}//rof
 }//cnuf
@@ -69,69 +57,41 @@ void  Super_parser::readY( short row, int amt, char fexp, unsigned int _offset )
 	int ctr = 0;
 	short step = tsprec_subval / 8;
 	int ipt_bytes = amt * step;
-	int mod_bytes = ipt_bytes % LINE_MAX;
-	//int mod_amt = amt % LINE_MAX;
-	/*
-	 * Other approach:: keep commented out for now
-	 */
+	int mod_bytes = ipt_bytes % BUFFER_SIZE;
 
-	/*
-	if(fexp!=0x80){
-		int tmp;
-		//ifstr->read( buffer, LINEMAX);
-		for(short i = 0; i < amt; i++){
-		//	cout << "ctr: " << ctr << endl;
-			ifstr->read( (char*)&tmp, step );
-			Y[row][i] = (double) tmp * pow((double)2, reader_hdr->fexp - tsprec_subval);
-			//ctr=ctr+1;
-		}//rof
-	}//fi
-	else{
-		double tmp;
-		for(short i = 0; i < amt; i++){
-			ifstr->read( (char*) &Y[row][i], 4 );
-				//Y[row,i] = pow((double)tmp, reader_hdr->fexp) / tsprec_subval;
-		}//rof
-	}//esle
-	*/
 	if(fexp==(-128)){
-		float tmp;
-		while((ctr=ctr+LINE_MAX)<=ipt_bytes){
-			ifstr->read( buffer, LINE_MAX );
-			for(short i = 0; i < LINE_MAX/step; ++i){
-				memcpy(&tmp, buffer+(i*4), step);
-				*rdit = (double) tmp;
+		float tmp_buffer[FL_BUF_SIZE];
+		while((ctr=ctr+BUFFER_SIZE)<=ipt_bytes){
+			ifstr->read( (char*) tmp_buffer, BUFFER_SIZE );
+			for(short i = 0; i < FL_BUF_SIZE; ++i){
+				*rdit = tmp_buffer[i];
 				rdit = rdit + offset;
 			}//rof
 		}//elihw
-		ifstr->read( buffer, mod_bytes );
+		ifstr->read( (char*) tmp_buffer, mod_bytes );
 		for( short i = 0; i < mod_bytes/step; ++i){
-			memcpy(&tmp, buffer+(i*step), step);
-			*rdit = (double) tmp;
+			*rdit = tmp_buffer[i];
 			rdit = rdit + offset;
 		}//rof
 	}//fi
 	else{
-		int tmp;
-		while((ctr=ctr+LINE_MAX)<=ipt_bytes){
-			ifstr->read( buffer, LINE_MAX );
-			for	(short i = 0; i < LINE_MAX / step; ++i){
-				memcpy(&tmp, buffer+(i*step), step);
-				*rdit = (double) tmp * pow((double)2, fexp - tsprec_subval);
+		int tmp_buffer[FL_BUF_SIZE];
+		while((ctr=ctr+BUFFER_SIZE)<=ipt_bytes){
+			ifstr->read( (char*) tmp_buffer, BUFFER_SIZE );
+			for	(short i = 0; i < BUFFER_SIZE / step; ++i){
+				*rdit = (double) tmp_buffer[i] * pow((double)2, fexp - tsprec_subval);
 				rdit = rdit + offset;
 			}//rof
 		}//elihw
-		ifstr->read( buffer, mod_bytes );
+		ifstr->read( (char*) tmp_buffer, mod_bytes );
 		for( short i = 0; i < mod_bytes/step; ++i){
-			memcpy(&tmp, buffer+(i*step), step);
-			*rdit = (double) tmp * pow((double)2, fexp - tsprec_subval);
+			*rdit = (double) tmp_buffer[i] * pow((double)2, fexp - tsprec_subval);
 			rdit = rdit + offset;
 		}//rof
 	}//esle
 }//cnuf
 
 short Super_parser::read_log(){
-//seekg(JUMP, ios::cur);
 	if( logs_to_collect == 0 || want_log_but_no_log == 1){
 		return logs_to_collect;
 	}
@@ -221,10 +181,6 @@ void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_ve
 		offsets[i] = current_ssftc.ssfposn;
 		offset_indices[i] = i + 1;
 	}
-		/*
-		 use a simple insertion sort to sort the offsets and stores the index positions
-		  - a quicksort is not much use with small sizes and insertion sort acts well with presorted / partially sorted data
-		*/
 	int j; int tmp; int tmp_idx;
 	for(unsigned int i = 1; i < nsub; ++i ){
 		if( offsets[i] < offsets[i-1] ){
@@ -242,6 +198,7 @@ void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_ve
 	}
 	for( unsigned int i = 0; i < reader_hdr->fnsub; ++i ){
 		*description_vector_it = offset_indices[i];
+
 		++description_vector_it;
 	}
 	delete [] offsets;
@@ -249,7 +206,6 @@ void Super_parser::parse_directory( Rcpp::NumericVector::iterator description_ve
 }//cnuf
 
 
-//should I include some sort of a type index for recasting to type??
 void Super_parser::set_hdr_map(){//nb check char versions..
 	stringstream ss;
 	hdr_map.insert(std::make_pair("ftflgs", convert_to_str(reader_hdr->ftflgs,ss)));
@@ -296,7 +252,6 @@ void Super_parser::set_hdr_map(){//nb check char versions..
 	hdr_map.insert(std::make_pair("fwtype", convert_to_str(reader_hdr->fwtype,ss)));
 	// hdr_map.insert(std::make_pair("freserv", convert_to_str(reader_hdr->freserv)));	//reserved
 }
-
 
 string Super_parser::get_fexper(short fexper){
 	switch(fexper){

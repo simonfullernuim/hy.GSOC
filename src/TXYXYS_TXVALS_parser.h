@@ -23,18 +23,12 @@ public:
 
 	void parse_file(){
 		readX( subhdr.subnpts );
-		readY( 0, subhdr.subnpts, subhdr.subexp);//reverse order to pass ms.soc
+		readY( 0, subhdr.subnpts, subhdr.subexp);
 
 		if(subhdr.subnpts!=0){
-				//ERROR HANDLING
-				/*
-				 * RETURN AN ERROR IN DATA? IF NOT PROCESSED??
-				 */
-			}
-
+			Rcpp::Rcout <<"No points given in subheader" << std::endl;
+		}
 	}
 };
-
-
 
 #endif /* TXYXYS_TXVALS_PARSER_H_ */

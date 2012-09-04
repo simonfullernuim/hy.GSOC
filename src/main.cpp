@@ -1,23 +1,8 @@
 #ifdef INSIDE
 
-#define BUFFER 1024
-
-/*
- * 	Inheritance: Super_Class --> Basic_parser --> TMULTI_parser
- * 							 --> TXVALS_parser
- *							 --> TMULTI_TXVALS_parser
- *
- *							 Well, a 3D CUDA implemented circular buffer
-also asynchronous multithreaded processing
-those two are the keys to it
- */
+#define BUFFER 4096
 
 
-/*
- * Ancilliary data: Label: TALABS==1 --> then we use the data in hdr...
- * So we can return: e.g.
- *
- */
 
 #include <stdio.h>
 #include <iostream>
@@ -41,66 +26,16 @@ those two are the keys to it
 #include <R.h>
 using namespace std;
 
-/*
- *  ALT-SHIFT-W for Project Explorer
- */
-/*
- *
- * setClass("example",
-    representation  (
-           size = "numeric",
-           id    = "character"
-    )
-)
-
-fx <- cxxfunction( signature(x = "example"),
-'
-     S4 obj(x) ;
-     obj.slot( "size" ) = 10 ;
-     obj.slot( "id"   ) = "foo" ;
-     return obj ;
-', plugin = "Rcpp" )
-
-str( fx( new("example", size=4, id="id_value") ) )
- *
- */
 int main(){
-	//RInside R;
-	//multithreaded IO
-	//http://www.drdobbs.com/go-parallel/article/220300055?pgno=3
 
-
-	//http://www.dreamincode.net/forums/topic/170054-understanding-and-reading-binary-files-in-c/
-	//http://www.dreamincode.net/forums/topic/60185-manipulate-raw-binary-data/
-	//http://stackoverflow.com/questions/9812155/convert-from-unsigned-char-array-to-double
-	//rcpp_hello_world();
-
-
-	/*
-	 * I found the answer! And it's embarrassingly simple.
-
-The problem was that I was using the Release version of SDL instead of the Debug version! (I had 'libsdl' from MacPorts whereas I should have had 'libsdl-devel'.)
-
-So my generic answer is: make sure the libs you're linking against were compiled with debug flags set too, it's not always enough to just make sure your own code has them set.
-
-Cheers!
-
-thoughton.
-	 */
 	cout << (int) ( (char) 128 ) << endl;
 
 	cout << ( TMULTI | TRANDM ) << endl;
-			//Multifile, Unevenly Spaced X Values, Common X Array
 	cout << ( TMULTI | TXVALS ) << endl; //|TORDRD sub case
 
-	//Multifile, Unevenly Spaced X Values, Unique X arrays..
 	cout << ( TMULTI | TXYXYS | TXVALS ) << endl;
 
 	cout << ( TSPREC | TCGRAM | TMULTI | TRANDM | TORDRD | TALABS | TXYXYS | TXVALS ) << endl;
-
-
-	//SEXP XOb;
-	//Rcpp::S4 Obj(XOb);
 
 
 	ifstream test;

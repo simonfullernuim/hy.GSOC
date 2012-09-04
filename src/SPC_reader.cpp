@@ -27,7 +27,6 @@ void SPC_reader::read_proc_hdr(){
 void SPC_reader::print_SPCHDR(){
 		int c = 1;
 		Rcpp::Rcout << c++ << ": " << (short)hdr.ftflgs << endl;;
-		//read fversn
 		Rcpp::Rcout << c++ << ": " << (short)hdr.fversn << endl;
 		Rcpp::Rcout << c++ << ": " << (short)hdr.fexper << endl;
 		Rcpp::Rcout << c++ << ": " << hdr.fexp << endl;

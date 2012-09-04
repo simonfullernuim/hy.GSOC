@@ -21,7 +21,6 @@ std::map<std::string, std::string >hdr_map;
 RcppExport SEXP collapse( SEXP _hyObjList ){
 	BEGIN_RCPP
 
-	//SPC_reader * blank_spc_reader = new SPC_reader();
 	map<double,int> wl_map;
 	map<string, int> extra_data_map;
 	Rcpp::List hyObjList( _hyObjList );
@@ -29,20 +28,19 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 	string tmp_str;
 
 	for( lit = hyObjList.begin(); lit != hyObjList.end(); ++lit ){
-		Rcpp::S4 tmp( (SEXP) *lit );							//dirty cast to SEXP - only way? - all objects are validated in R prior to calling rcpp.collapse()
+		Rcpp::S4 tmp( (SEXP) *lit );
 		Rcpp::NumericVector wl = tmp.slot( "wavelength" );
 		Rcpp::Language datanames( "names", tmp.slot( "data" ) );
 		Rcpp::CharacterVector charnames( datanames.eval() );	//stores data strings..
 		for( Rcpp::CharacterVector::iterator cit = charnames.begin(); cit != charnames.end(); ++cit ){
 			Rcpp::CharacterVector tmpcv( *cit );
-			tmp_str = Rcpp::as< string >( tmpcv );	//here
+			tmp_str = Rcpp::as< string >( tmpcv );
 			++extra_data_map[tmp_str];
 		}//rof
 		for( Rcpp::NumericVector::iterator it = wl.begin(); it != wl.end(); ++it ){
 			++wl_map[*it];
 		}//rof
 	}//rof
-	//index wavelengths to position in spc matrix
 	Rcpp::NumericVector wavelength( wl_map.size() );
 	int map_idx = 0;
 	for( map<double,int>::iterator mit = wl_map.begin(); mit != wl_map.end(); ++mit ){
@@ -97,7 +95,7 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 			}//elihw
 			if( tmp_str != "spc" ){
 							//this only works for the numerics - change
-				extra_data( mat_idx, insert_pos ) = Rcpp::as<double>(df2[ tmp_str ]);
+				extra_data( mat_idx, insert_pos ) = Rcpp::as< double >( df2[ tmp_str ] );
 			}//fi
 			++pos;
 		}//rof
@@ -111,8 +109,6 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 	END_RCPP
 }//cnuf
 
-
-//Putting these here for the moment - if we have more similar functions I will share them in a separate header
 
 inline string convert_to_str(int number, stringstream& ss ){
    ss.clear();
