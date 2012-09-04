@@ -7,6 +7,5 @@ rcpp.collapse <- function(...){
 	## check the arguments
 	lapply (hyObjList, chk.hy)
 	lapply (hyObjList, validObject)
-	
 	return (eval (.Call("collapse", hyObjList) ) )
 }

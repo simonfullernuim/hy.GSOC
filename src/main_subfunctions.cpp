@@ -24,3 +24,18 @@ void switch_flag( BYTE& hdrflag, BYTE& switch_flg, bool& TORDRD_case, bool& TALA
 }//cnuf
 
 
+string convert_to_str(int number, stringstream& ss ){
+   ss.clear();
+   ss.str("");
+   ss << number;//add number to the stream
+   return ss.str();//return a string with the contents of the stream
+}//cnuf
+
+string convert_to_str(double number, stringstream& ss ){
+   ss.clear();
+   ss.str("");
+   ss << number;//add number to the stream
+   return ss.str();//return a string with the contents of the stream
+}
+
+string convert_to_str( std::string str ){ return str; }
