@@ -76,16 +76,13 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 		Rcpp::NumericMatrix spec = df2["spc"];
 
 		Rcpp::NumericVector wl = tmp.slot( "wavelength" );
-		pos = 0;
 		for( int j = 0; j < *nrow_it; ++j ){
+			for( int i = 0; i < ncol; ++i ){
+				spc( mat_idx + j, i ) = NA_REAL;
+			}
 			for( int i = 0; i < wl.size(); ++i ){
 				insert_pos = wl_map[ wl(i) ];	//assigning NAs here rather than separate loop is preferable, in that some cases might not be sparse, and have few NAs
-				while( pos < insert_pos ){
-					spc[ mat_idx + j, pos ] = NA_REAL;
-					++pos;
-				}//elihw
-				spc[ mat_idx + j, wl_map[ wl(i) ] ] = spec[ j, i ];//NB assuming only one row in each spec - this can be changed
-				++pos;
+				spc( mat_idx + j, insert_pos ) = spec( j, i );//NB assuming only one row in each spec - this can be changed
 			}//rof
 		}//rof
 
@@ -102,12 +99,12 @@ RcppExport SEXP collapse( SEXP _hyObjList ){
 			insert_pos = extra_data_map[ tmp_str ];
 
 			while( pos < insert_pos ){
-				extra_data[ mat_idx, pos ] = NA_REAL;
+				extra_data( mat_idx, pos ) = NA_REAL;
 				++pos;
 			}//elihw
 			if( tmp_str != "spc" ){
 				for( int i = 0; i < *nrow_it; ++i ){	//add row for all spectra
-					extra_data[ mat_idx + i, insert_pos ] = datavec[ i ];
+					extra_data( mat_idx + i, insert_pos ) = datavec( i );
 				}//rof
 			}//fi
 			++pos;
